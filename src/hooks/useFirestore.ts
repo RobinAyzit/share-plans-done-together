@@ -6,10 +6,11 @@ import {
     onSnapshot,
     doc,
     getDoc,
-    addDoc,
     updateDoc,
-    deleteDoc,
     Timestamp,
+    arrayUnion,
+    addDoc,
+    deleteDoc,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Plan, PlanMember, Item } from '../types';
@@ -108,29 +109,35 @@ export function usePlan(planId: string | null) {
 }
 
 // Plan CRUD operations
-export async function createPlan(name: string, userId: string, userEmail: string, displayName: string, photoURL?: string): Promise<string> {
-    const member: PlanMember = {
-        uid: userId,
-        email: userEmail,
-        displayName,
-        photoURL,
-        role: 'owner',
-        joinedAt: Timestamp.now(),
-    };
-
-    const newPlan = {
-        name: name.trim(),
+export async function createPlan(
+    name: string,
+    userId: string,
+    userEmail: string,
+    userName: string,
+    userPhoto?: string,
+    imageUrl?: string
+): Promise<string> {
+    const plansRef = collection(db, 'plans');
+    const newPlan: Omit<Plan, 'id'> = {
+        name,
         ownerId: userId,
         members: {
-            [userId]: member,
+            [userId]: {
+                uid: userId,
+                email: userEmail,
+                displayName: userName,
+                photoURL: userPhoto,
+                role: 'owner',
+                joinedAt: Timestamp.now(),
+            },
         },
         items: [],
         created: Timestamp.now(),
         completed: false,
         lastModified: Timestamp.now(),
+        imageUrl
     };
-
-    const docRef = await addDoc(collection(db, 'plans'), newPlan);
+    const docRef = await addDoc(plansRef, newPlan);
     return docRef.id;
 }
 
@@ -147,22 +154,18 @@ export async function deletePlan(planId: string) {
     await deleteDoc(planRef);
 }
 
-export async function addItemToPlan(planId: string, text: string): Promise<void> {
+export async function addItemToPlan(planId: string, text: string, imageUrl?: string): Promise<void> {
     const planRef = doc(db, 'plans', planId);
-    const planSnap = await getDoc(planRef);
-
-    if (!planSnap.exists()) return;
-
-    const plan = planSnap.data() as Plan;
     const newItem: Item = {
-        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-        text: text.trim(),
+        id: Math.random().toString(36).substring(2, 11),
+        text,
         checked: false,
+        imageUrl
     };
-
     await updateDoc(planRef, {
-        items: [...plan.items, newItem],
+        items: arrayUnion(newItem),
         lastModified: Timestamp.now(),
+        completed: false, // Reset completed if new item added
     });
 }
 

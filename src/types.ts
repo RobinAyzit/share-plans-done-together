@@ -6,6 +6,7 @@ export interface Item {
     checked: boolean;
     checkedBy?: string;
     checkedByUid?: string;
+    imageUrl?: string;
 }
 
 export interface PlanMember {
@@ -26,6 +27,7 @@ export interface Plan {
     created: Timestamp;
     completed: boolean;
     lastModified: Timestamp;
+    imageUrl?: string;
 }
 
 export interface UserProfile {
