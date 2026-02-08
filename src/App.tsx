@@ -313,8 +313,8 @@ function App() {
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center mx-auto mb-4 animate-pulse overflow-hidden">
-            <img src="pwa-icon.png" className="w-full h-full object-cover" alt="Done Together" />
+          <div className="w-20 h-20 mx-auto mb-4 animate-pulse">
+            <img src="pwa-icon.png" className="w-full h-full object-contain" alt="Done Together" />
           </div>
           <p className="text-zinc-500 font-bold italic uppercase tracking-widest text-xs">Laddar appen...</p>
         </div>
@@ -328,8 +328,8 @@ function App() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 border-b border-zinc-800/50 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/20 rotate-3 group-hover:rotate-6 transition-transform overflow-hidden">
-              <img src="pwa-icon.png" className="w-full h-full object-cover" alt="Logo" />
+            <div className="w-12 h-12 rotate-3 hover:rotate-6 transition-transform">
+              <img src="pwa-icon.png" className="w-full h-full object-contain" alt="Logo" />
             </div>
             <h1 className="text-xl font-black italic uppercase tracking-tighter">Done<span className="text-emerald-500">Together</span></h1>
           </div>
