@@ -56,8 +56,9 @@ function App() {
   // Check for invite code in URL on mount
   useEffect(() => {
     const path = window.location.pathname;
-    if (path.startsWith('/join/')) {
-      const code = path.split('/join/')[1];
+    if (path.includes('/join/')) {
+      const parts = path.split('/join/');
+      const code = parts[parts.length - 1];
       if (code) {
         setPendingInviteCode(code);
       }
