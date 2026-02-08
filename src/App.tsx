@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Handshake } from 'lucide-react';
+import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X } from 'lucide-react';
 import { compressAndToBase64 } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import {
@@ -313,8 +313,8 @@ function App() {
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 mx-auto mb-4 animate-pulse flex items-center justify-center">
-            <Handshake className="w-16 h-16 text-emerald-500" />
+          <div className="w-20 h-20 mx-auto mb-4 overflow-hidden rounded-2xl">
+            <img src="pwa-icon.png" className="w-full h-full object-cover scale-110" alt="Done Together" />
           </div>
           <p className="text-zinc-500 font-bold italic uppercase tracking-widest text-xs">Laddar appen...</p>
         </div>
@@ -328,8 +328,8 @@ function App() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/80 border-b border-zinc-800/50 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 flex items-center justify-center rotate-3 group-hover:rotate-6 transition-transform">
-              <Handshake className="w-8 h-8 text-emerald-500" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden rotate-3 hover:rotate-6 transition-transform shadow-lg shadow-emerald-500/10">
+              <img src="pwa-icon.png" className="w-full h-full object-cover scale-105" alt="Logo" />
             </div>
             <h1 className="text-xl font-black italic uppercase tracking-tighter">Done<span className="text-emerald-500">Together</span></h1>
           </div>
