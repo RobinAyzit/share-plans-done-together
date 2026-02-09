@@ -70,10 +70,6 @@ export function AuthModal({ onSignIn, onClose, error }: AuthModalProps) {
                     </svg>
                     {t('auth.continue_google')}
                 </button>
-
-                <div className="mt-8 text-center text-[10px] font-black italic text-zinc-400 dark:text-zinc-600 uppercase tracking-widest leading-loose">
-                    {t('auth.terms')}
-                </div>
             </motion.div>
         </div>
     );
