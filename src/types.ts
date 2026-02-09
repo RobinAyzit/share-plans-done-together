@@ -46,6 +46,7 @@ export interface UserProfile {
     friends: string[];
     createdAt: Timestamp;
     fcmTokens?: string[];
+    language?: string;
 }
 
 export interface PlanInvite {

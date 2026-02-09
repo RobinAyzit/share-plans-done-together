@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { LogIn, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './LanguageSwitcher';
 
 interface AuthModalProps {
     onSignIn: () => void;
@@ -8,6 +10,8 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ onSignIn, onClose, error }: AuthModalProps) {
+    const { t } = useTranslation();
+
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm px-6">
             <motion.div
@@ -26,10 +30,14 @@ export function AuthModal({ onSignIn, onClose, error }: AuthModalProps) {
                     <div className="w-20 h-20 rounded-3xl bg-emerald-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-emerald-500/20 rotate-3">
                         <LogIn className="w-10 h-10 text-black stroke-[2.5px]" />
                     </div>
-                    <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 text-zinc-900 dark:text-white">Logga in</h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 font-medium italic">
-                        Börja planera och utföra saker tillsammans med dina vänner.
+                    <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-2 text-zinc-900 dark:text-white">{t('auth.login')}</h2>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium italic mb-6">
+                        {t('auth.login_subtitle')}
                     </p>
+
+                    <div className="flex justify-center">
+                        <LanguageSwitcher />
+                    </div>
                 </div>
 
                 {error && (
@@ -60,11 +68,11 @@ export function AuthModal({ onSignIn, onClose, error }: AuthModalProps) {
                             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         />
                     </svg>
-                    Fortsätt med Google
+                    {t('auth.continue_google')}
                 </button>
 
                 <div className="mt-8 text-center text-[10px] font-black italic text-zinc-400 dark:text-zinc-600 uppercase tracking-widest leading-loose">
-                    Genom att logga in godkänner du att dela dina planer med andra utförare
+                    {t('auth.terms')}
                 </div>
             </motion.div>
         </div>

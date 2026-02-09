@@ -1,0 +1,59 @@
+{
+    "common": {
+        "loading": "Uygulama yükleniyor...",
+        "back": "Geri",
+        "done": "Tamam",
+        "cancel": "İptal",
+        "save": "Kaydet",
+        "delete": "Sil",
+        "edit": "Düzenle",
+        "unknown": "Bilinmiyor"
+    },
+    "auth": {
+        "login": "Giriş Yap",
+        "login_subtitle": "Arkadaşlarınla birlikte plan yapmaya ve bir şeyler başarmaya başla.",
+        "continue_google": "Google ile Devam Et",
+        "terms": "Giriş yaparak, planlarını diğer katılımcılarla paylaşmayı kabul etmiş olursun",
+        "logout": "Çıkış Yap"
+    },
+    "home": {
+        "hero_title": "Birlikte Planla & Yap.",
+        "hero_subtitle": "Arkadaşlarınla gerçek zamanlı planlar oluştur. Kimin neyi tamamladığını gör ve başarınızı fotoğraflarla kutla!",
+        "create_plan": "Yeni plan oluştur",
+        "join_plan": "Plana katıl",
+        "active_plans": "Aktif planların",
+        "plans_count": "{{count}} plan",
+        "no_active_plans": "Henüz aktif plan yok. İlkini oluştur!"
+    },
+    "plans": {
+        "all_plans": "Tüm Planlar",
+        "progress": "İlerleme",
+        "completed": "Tamamlananlar",
+        "step_of": "{{current}} / {{total}} adım tamamlandı",
+        "what_else": "Başka ne var?",
+        "fixed_by": "{{name}} TARAFINDAN YAPILDI",
+        "reopen_plan": "Planı tekrar aç",
+        "empty_plan": "Plan boş. Ne bekliyorsunuz?",
+        "delete_plan_confirm": "Bu planı gerçekten silmek istiyor musun?",
+        "delete_completed_plan_confirm": "Bu tamamlanmış planı silmek istiyor musun?",
+        "only_owner_can_delete": "Aktif bir planı sadece sahibi silebilir",
+        "plan_deleted": "Plan silindi",
+        "plan_created": "Plan oluşturuldu!",
+        "plan_reopened": "Plan tekrar açıldı",
+        "item_added": "Madde eklendi",
+        "item_removed": "Madde kaldırıldı",
+        "item_updated": "Madde güncellendi",
+        "join_invalid": "Geçersiz veya süresi dolmuş davet bağlantısı",
+        "join_success": "{{name}} planına katıldın!",
+        "join_error": "Plana katılamadı",
+        "update_error": "Güncellenemedi",
+        "create_error": "Plan oluşturulamadı"
+    },
+    "profile": {
+        "title": "Profil",
+        "language": "Dil",
+        "theme": "Tema",
+        "dark": "Koyu",
+        "light": "Açık"
+    }
+}

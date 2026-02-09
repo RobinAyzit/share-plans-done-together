@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon } from 'lucide-react';
@@ -25,11 +26,13 @@ import { JoinModal } from './components/JoinModal';
 import { AuthModal } from './components/AuthModal';
 import { FriendsModal } from './components/FriendsModal';
 import { ShareModal } from './components/ShareModal';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 import type { Plan, Item } from './types';
 
 const EMOJIS = ['❤️', '🔥', '💪', '🙏', '😂', '💯']; // Reactions supported by the app
 
 function App() {
+  const { t } = useTranslation();
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
   });
@@ -102,7 +105,7 @@ function App() {
         const invite = await getInviteByCode(pendingInviteCode);
 
         if (!invite) {
-          showToast('Ogiltig eller utgången inbjudningslänk');
+          showToast(t('plans.join_invalid'));
           setPendingInviteCode(null);
           window.history.replaceState({}, '', '/');
           return;
@@ -127,7 +130,7 @@ function App() {
         window.history.replaceState({}, '', '/');
       } catch (error) {
         console.error('Error joining plan:', error);
-        showToast('Kunde inte gå med i planen');
+        showToast(t('plans.join_error'));
       } finally {
         setJoiningPlan(false);
       }
@@ -185,7 +188,7 @@ function App() {
     try {
       await toggleReaction(planId, itemId, user.uid, userProfile.displayName, emoji);
     } catch (err: any) {
-      showToast('Kunde inte lägga till reaktion');
+      showToast(t('plans.update_error'));
     }
   };
 
@@ -233,10 +236,10 @@ function App() {
       setShowCreateModal(false);
       setCurrentPlanId(planId);
       setActiveTab('plans');
-      showToast('Plan skapad!');
+      showToast(t('plans.plan_created'));
     } catch (error: any) {
       console.error('Error creating plan:', error);
-      showToast('Kunde inte skapa planen');
+      showToast(t('plans.create_error'));
     } finally {
       setCreatingPlan(false);
     }
@@ -249,7 +252,7 @@ function App() {
       await toggleItemChecked(planId, itemId, user.uid, userProfile.displayName);
     } catch (error: any) {
       console.error('Error toggling item:', error);
-      showToast('Kunde inte uppdatera');
+      showToast(t('plans.update_error'));
     }
   };
 
@@ -265,17 +268,17 @@ function App() {
       await addItemToPlan(planId, text.trim(), user.uid, userProfile.displayName, imageUrl);
       setAddInput('');
       setItemFile(null);
-      showToast('Punkt tillagd');
+      showToast(t('plans.item_added'));
     } catch (error: any) {
       console.error('Error adding item:', error);
-      showToast('Kunde inte lägga till punkt');
+      showToast(t('plans.create_error'));
     }
   };
 
   const handleDeleteItem = async (planId: string, itemId: string) => {
     try {
       await deleteItem(planId, itemId);
-      showToast('Punkt borttagen');
+      showToast(t('plans.item_removed'));
     } catch (error: any) {
       console.error('Error deleting item:', error);
     }
@@ -288,7 +291,7 @@ function App() {
       await updateItem(planId, itemId, { text: newText.trim() });
       setShowEditModal(false);
       setEditingItem(null);
-      showToast('Punkt uppdaterad');
+      showToast(t('plans.item_updated'));
     } catch (error: any) {
       console.error('Error editing item:', error);
     }
@@ -300,20 +303,20 @@ function App() {
 
     // Only owner can delete active plans, anyone can delete completed ones
     if (plan.ownerId !== user?.uid && !plan.completed) {
-      showToast('Endast ägaren kan radera en aktiv plan');
+      showToast(t('plans.only_owner_can_delete'));
       return;
     }
 
-    if (window.confirm(plan.completed ? 'Vill du radera denna klara plan?' : 'Vill du verkligen radera denna plan?')) {
+    if (window.confirm(plan.completed ? t('plans.delete_completed_plan_confirm') : t('plans.delete_plan_confirm'))) {
       try {
         await deletePlan(planId);
         if (currentPlanId === planId) {
           setCurrentPlanId(null);
         }
-        showToast('Plan raderad');
+        showToast(t('plans.plan_deleted'));
       } catch (error: any) {
         console.error('Error deleting plan:', error);
-        showToast('Kunde inte radera planen');
+        showToast(t('plans.plan_deleted_error'));
       }
     }
   };
@@ -321,7 +324,7 @@ function App() {
   const handleReopenPlan = async (planId: string) => {
     try {
       await updatePlan(planId, { completed: false });
-      showToast('Plan öppnad igen');
+      showToast(t('plans.plan_reopened'));
     } catch (error: any) {
       console.error('Error reopening plan:', error);
     }
@@ -353,7 +356,7 @@ function App() {
           <div className="w-20 h-20 mx-auto mb-4 overflow-hidden rounded-3xl">
             <img src="pwa-icon.png" className="w-full h-full object-cover scale-[1.6]" alt="DoneTogether" />
           </div>
-          <p className="text-zinc-500 font-bold italic uppercase tracking-widest text-xs">Laddar appen...</p>
+          <p className="text-zinc-500 font-bold italic uppercase tracking-widest text-xs">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -376,7 +379,7 @@ function App() {
               <button
                 onClick={() => setShowFriendsModal(true)}
                 className="relative p-2 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                title="Vänförfrågningar"
+                title={t('common.friends_requests') || 'Friends Requests'}
               >
                 <Users className="w-5 h-5" />
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-950">
@@ -404,7 +407,7 @@ function App() {
                 onClick={() => setShowAuthModal(true)}
                 className="px-4 py-2 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
               >
-                Logga in
+                {t('auth.login')}
               </button>
             )}
           </div>
@@ -424,9 +427,9 @@ function App() {
             >
               {/* Hero Section */}
               <div className="bg-gradient-to-br from-emerald-500/10 to-transparent p-8 rounded-[32px] border border-emerald-500/10 dark:border-emerald-500/10">
-                <h2 className="text-3xl font-bold mb-3 tracking-tight leading-tight italic font-black">Planera & Gör Saker Tillsammans.</h2>
+                <h2 className="text-3xl font-bold mb-3 tracking-tight leading-tight italic font-black">{t('home.hero_title')}</h2>
                 <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6 max-w-md italic">
-                  Skapa realtidsplaner med dina vänner. Se vem som har bockat av vad och fira er framgång med bilder!
+                  {t('home.hero_subtitle')}
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <button
@@ -437,7 +440,7 @@ function App() {
                     className="px-6 py-3.5 rounded-2xl bg-emerald-500 text-black font-bold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
                   >
                     <Plus className="w-5 h-5 stroke-[3px]" />
-                    Skapa ny plan
+                    {t('home.create_plan')}
                   </button>
 
                   <button
@@ -447,7 +450,7 @@ function App() {
                     }}
                     className="px-6 py-3.5 rounded-2xl bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 shadow-sm"
                   >
-                    Gå med i plan
+                    {t('home.join_plan')}
                   </button>
                 </div>
               </div>
@@ -455,8 +458,8 @@ function App() {
               {/* Active Plans List */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-zinc-400 dark:text-zinc-500 text-xs font-bold uppercase tracking-[0.2em]">Dina aktiva planer</h3>
-                  <span className="text-zinc-400 dark:text-zinc-600 text-xs font-medium">{activePlans.length} planer</span>
+                  <h3 className="text-zinc-400 dark:text-zinc-500 text-xs font-bold uppercase tracking-[0.2em]">{t('home.active_plans')}</h3>
+                  <span className="text-zinc-400 dark:text-zinc-600 text-xs font-medium">{t('home.plans_count', { count: activePlans.length })}</span>
                 </div>
 
                 {activePlans.length > 0 ? (
@@ -480,7 +483,7 @@ function App() {
                         <div className="flex items-center justify-between mb-4 relative z-10">
                           <h4 className="font-bold text-lg text-zinc-900 dark:text-white group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors uppercase italic tracking-tight">{plan.name}</h4>
                           <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 text-[10px] font-bold tracking-widest uppercase">
-                            {getProgress(plan)}% Klar
+                            {getProgress(plan)}% {t('plans.completed')}
                           </span>
                         </div>
                         <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden mb-4 relative z-10">
@@ -491,7 +494,7 @@ function App() {
                           />
                         </div>
                         <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-500 italic relative z-10">
-                          <span>{plan.items?.filter(i => i.checked).length || 0} av {plan.items?.length || 0} steg klara</span>
+                          <span>{t('plans.step_of', { current: plan.items?.filter(i => i.checked).length || 0, total: plan.items?.length || 0 })}</span>
                           <div className="flex -space-x-2">
                             {plan.members && Object.values(plan.members).slice(0, 3).map((m: any, i) => (
                               <img
@@ -513,7 +516,7 @@ function App() {
                   </div>
                 ) : (
                   <div className="text-center py-12 bg-white dark:bg-zinc-900/20 rounded-3xl border border-dashed border-zinc-200 dark:border-zinc-800">
-                    <p className="text-zinc-400 dark:text-zinc-500 italic text-sm">Inga aktiva planer än. Skapa din första!</p>
+                    <p className="text-zinc-400 dark:text-zinc-500 italic text-sm">{t('home.no_active_plans')}</p>
                   </div>
                 )}
               </div>
@@ -534,11 +537,11 @@ function App() {
                     <button onClick={() => setActiveTab('home')} className="p-2 -ml-2 rounded-xl bg-white dark:bg-transparent border border-zinc-200 dark:border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-900 text-zinc-400 transition-colors">
                       <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h2 className="text-2xl font-black italic tracking-tight uppercase text-zinc-900 dark:text-white">Alla Planer</h2>
+                    <h2 className="text-2xl font-black italic tracking-tight uppercase text-zinc-900 dark:text-white">{t('plans.all_plans')}</h2>
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] px-2">Dina aktiva planer</h3>
+                    <h3 className="text-zinc-400 dark:text-zinc-500 text-[10px] font-bold uppercase tracking-[0.2em] px-2">{t('home.active_plans')}</h3>
                     {activePlans.length > 0 ? activePlans.map(plan => (
                       <div
                         key={plan.id}
@@ -580,7 +583,7 @@ function App() {
                       className="flex items-center gap-2 text-zinc-400 dark:text-zinc-500 text-xs font-black uppercase tracking-widest hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
                     >
                       <ArrowLeft className="w-4 h-4" />
-                      TILLBAKA
+                      {t('common.back')}
                     </button>
 
                     <div className="flex items-center justify-between">
@@ -599,7 +602,7 @@ function App() {
                           <h2 className="text-3xl font-black italic tracking-tighter uppercase leading-none mb-1 text-zinc-900 dark:text-white">{currentPlan.name}</h2>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-2 py-1 rounded-lg">
-                              AV {currentPlan.members?.[currentPlan.ownerId]?.displayName || 'Okänd'}
+                              {t('common.by') || 'BY'} {currentPlan.members?.[currentPlan.ownerId]?.displayName || t('common.unknown')}
                             </span>
                           </div>
                         </div>
@@ -624,8 +627,8 @@ function App() {
 
                     <div className="p-5 bg-white dark:bg-zinc-900/40 rounded-[24px] border border-zinc-200 dark:border-zinc-800/50 shadow-sm">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">Framsteg</span>
-                        <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 italic">{getProgress(currentPlan)}% KLART</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">{t('plans.progress')}</span>
+                        <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 italic">{getProgress(currentPlan)}% {t('plans.completed')}</span>
                       </div>
                       <div className="h-3 bg-zinc-100 dark:bg-zinc-950 rounded-full overflow-hidden border border-zinc-100 dark:border-zinc-800">
                         <motion.div
@@ -666,7 +669,7 @@ function App() {
                         type="text"
                         value={addInput}
                         onChange={(e) => setAddInput(e.target.value)}
-                        placeholder="Vad mer?"
+                        placeholder={t('plans.what_else')}
                         className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl py-5 pl-20 pr-14 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all font-bold italic shadow-sm"
                       />
                       <button type="submit" disabled={!addInput.trim()} className="absolute right-4 top-1/2 -translate-y-1/2 p-2.5 bg-emerald-500 text-black rounded-xl disabled:opacity-20 shadow-lg shadow-emerald-500/20 transition-all hover:scale-110 active:scale-95">
@@ -697,7 +700,9 @@ function App() {
                                   {item.text}
                                 </p>
                                 {item.checked && item.checkedBy && (
-                                  <div className="text-[10px] font-black uppercase tracking-[0.1em] text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded inline-block">FIXAT AV {item.checkedBy}</div>
+                                  <div className="text-[10px] font-black uppercase tracking-[0.1em] text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded inline-block">
+                                    {t('plans.fixed_by', { name: item.checkedBy })}
+                                  </div>
                                 )}
                               </div>
                               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -782,7 +787,7 @@ function App() {
                       ))
                     ) : (
                       <div className="text-center py-20 bg-white dark:bg-zinc-950/40 rounded-3xl border-2 border-dashed border-zinc-100 dark:border-zinc-900">
-                        <p className="text-zinc-400 dark:text-zinc-600 font-bold italic">Planen är tom. Vad väntar ni på?</p>
+                        <p className="text-zinc-400 dark:text-zinc-600 font-bold italic">{t('plans.empty_plan')}</p>
                       </div>
                     )}
                   </div>
@@ -790,7 +795,7 @@ function App() {
                   {currentPlan.completed && (
                     <div className="pt-10 text-center">
                       <button onClick={() => handleReopenPlan(currentPlan.id)} className="px-8 py-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl font-black italic tracking-widest uppercase hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white transition shadow-lg">
-                        Öppna planen igen
+                        {t('plans.reopen_plan')}
                       </button>
                     </div>
                   )}
@@ -829,15 +834,23 @@ function App() {
                     <button onClick={() => setActiveTab('completed')} className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-[28px] text-center border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/20 dark:hover:border-emerald-500/30 transition-all hover:-translate-y-1">
                       <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">{completedPlans.length}</div>
                       <div className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                        <Check className="w-3 h-3" /> Klarade
+                        <Check className="w-3 h-3" /> {t('plans.completed')}
                       </div>
                     </button>
                     <button onClick={() => setShowFriendsModal(true)} className="bg-zinc-50 dark:bg-zinc-800/40 p-6 rounded-[28px] text-center border border-zinc-200 dark:border-zinc-800 hover:border-emerald-500/20 dark:hover:border-emerald-500/30 transition-all hover:-translate-y-1">
                       <div className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">{userProfile.friends?.length || 0}</div>
                       <div className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest flex items-center justify-center gap-2">
-                        <Users className="w-3 h-3" /> Vänner
+                        <Users className="w-3 h-3" /> {t('common.friends') || 'Friends'}
                       </div>
                     </button>
+                  </div>
+
+                  {/* Language Selection */}
+                  <div className="w-full mb-4">
+                    <div className="flex flex-col items-center justify-between p-6 rounded-[28px] bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50">
+                      <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none mb-4">{t('profile.language')}</p>
+                      <LanguageSwitcher />
+                    </div>
                   </div>
 
                   {/* Theme Toggle */}
@@ -848,8 +861,8 @@ function App() {
                           {theme === 'light' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </div>
                         <div className="text-left">
-                          <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none mb-1">UTSEENDE</p>
-                          <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase italic">{theme === 'light' ? 'Ljust Tema' : 'Mörkt Tema'}</p>
+                          <p className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none mb-1">{t('profile.theme')}</p>
+                          <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase italic">{theme === 'light' ? t('profile.light') : t('profile.dark')}</p>
                         </div>
                       </div>
                       <button
@@ -868,7 +881,7 @@ function App() {
                     onClick={signOut}
                     className="w-full flex items-center justify-center gap-3 p-6 rounded-[28px] bg-red-500/5 border border-red-500/10 text-red-500 font-black italic uppercase tracking-widest hover:bg-red-500/10 transition-all"
                   >
-                    Logga ut från kontot
+                    {t('auth.logout')}
                   </button>
                 </div>
               </div>
@@ -887,7 +900,7 @@ function App() {
                 <button onClick={() => setActiveTab('profile')} className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-400 transition-colors">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-3xl font-black italic tracking-tighter uppercase">Klarade Planer</h2>
+                <h2 className="text-3xl font-black italic tracking-tighter uppercase">{t('plans.completed')}</h2>
               </div>
 
               <div className="space-y-4">
@@ -953,7 +966,7 @@ function App() {
             className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'home' ? 'text-emerald-500 scale-110' : 'text-zinc-400 dark:text-zinc-600 hover:text-emerald-500 dark:hover:text-zinc-400'}`}
           >
             <Home className="w-6 h-6 stroke-[2.5px]" />
-            <span className="text-[9px] font-black uppercase tracking-widest">Hem</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">{t('common.home') || 'Home'}</span>
           </button>
 
           <button
@@ -974,7 +987,7 @@ function App() {
             className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'plans' ? 'text-emerald-500 scale-110' : 'text-zinc-400 dark:text-zinc-600 hover:text-emerald-500 dark:hover:text-zinc-400'}`}
           >
             <Check className="w-6 h-6 stroke-[2.5px]" />
-            <span className="text-[9px] font-black uppercase tracking-widest">Planer</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">{t('plans.all_plans')}</span>
           </button>
 
           <button
@@ -982,7 +995,7 @@ function App() {
             className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'completed' ? 'text-emerald-500 scale-110' : 'text-zinc-400 dark:text-zinc-600 hover:text-emerald-500 dark:hover:text-zinc-400'}`}
           >
             <History className="w-6 h-6 stroke-[2.5px]" />
-            <span className="text-[9px] font-black uppercase tracking-widest">Klarade</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">{t('plans.completed')}</span>
           </button>
 
           <button
@@ -990,7 +1003,7 @@ function App() {
             className={`flex flex-col items-center gap-1.5 transition-all ${activeTab === 'profile' ? 'text-emerald-500 scale-110' : 'text-zinc-400 dark:text-zinc-600 hover:text-emerald-500 dark:hover:text-zinc-400'}`}
           >
             <User className="w-6 h-6 stroke-[2.5px]" />
-            <span className="text-[9px] font-black uppercase tracking-widest">Profil</span>
+            <span className="text-[9px] font-black uppercase tracking-widest">{t('profile.title')}</span>
           </button>
         </div>
       </footer>
@@ -1014,7 +1027,7 @@ function App() {
                 <X className="w-6 h-6" />
               </button>
 
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 text-zinc-900 dark:text-white">Ny Plan</h2>
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 text-zinc-900 dark:text-white">{t('home.create_plan')}</h2>
 
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -1058,13 +1071,13 @@ function App() {
                 </div>
 
                 <div className="pt-6 flex gap-3">
-                  <button onClick={() => setShowCreateModal(false)} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">AVBRYT</button>
+                  <button onClick={() => setShowCreateModal(false)} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">{t('common.cancel')}</button>
                   <button
                     onClick={createNewPlan}
                     disabled={!newPlanName.trim() || creatingPlan}
                     className="flex-[1.5] py-5 bg-emerald-500 text-black rounded-2xl text-sm font-black uppercase tracking-widest disabled:opacity-30 transition hover:bg-emerald-400 shadow-xl shadow-emerald-500/20"
                   >
-                    {creatingPlan ? 'SKAPAR...' : 'SKAPA PLAN NU'}
+                    {creatingPlan ? t('common.loading') : t('home.create_plan')}
                   </button>
                 </div>
               </div>
@@ -1088,7 +1101,7 @@ function App() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-0">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => { setShowEditModal(false); setEditingItem(null); }} className="absolute inset-0 bg-white/60 dark:bg-zinc-950/95 backdrop-blur-md" />
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 30 }} className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-[32px] border border-zinc-200 dark:border-zinc-800 p-10 shadow-2xl overflow-hidden">
-              <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 text-zinc-900 dark:text-white">Redigera</h2>
+              <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 text-zinc-900 dark:text-white">{t('common.edit')}</h2>
               <input
                 type="text"
                 defaultValue={editingItem.item.text}
@@ -1097,8 +1110,8 @@ function App() {
                 autoFocus
               />
               <div className="pt-8 flex gap-3">
-                <button onClick={() => { setShowEditModal(false); setEditingItem(null); }} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">AVBRYT</button>
-                <button onClick={() => { const input = document.getElementById('edit-item-input') as HTMLInputElement; handleEditItem(editingItem.planId, editingItem.item.id, input.value); }} className="flex-[1.5] py-5 bg-emerald-500 text-black rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">SPARA</button>
+                <button onClick={() => { setShowEditModal(false); setEditingItem(null); }} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">{t('common.cancel')}</button>
+                <button onClick={() => { const input = document.getElementById('edit-item-input') as HTMLInputElement; handleEditItem(editingItem.planId, editingItem.item.id, input.value); }} className="flex-[1.5] py-5 bg-emerald-500 text-black rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">{t('common.save')}</button>
               </div>
             </motion.div>
           </div>

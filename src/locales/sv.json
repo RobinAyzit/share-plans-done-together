@@ -1,0 +1,59 @@
+{
+    "common": {
+        "loading": "Laddar appen...",
+        "back": "Tillbaka",
+        "done": "Klar",
+        "cancel": "Avbryt",
+        "save": "Spara",
+        "delete": "Radera",
+        "edit": "Redigera",
+        "unknown": "Okänd"
+    },
+    "auth": {
+        "login": "Logga in",
+        "login_subtitle": "Börja planera och utföra saker tillsammans med dina vänner.",
+        "continue_google": "Fortsätt med Google",
+        "terms": "Genom att logga in godkänner du att dela dina planer med andra utförare",
+        "logout": "Logga ut"
+    },
+    "home": {
+        "hero_title": "Planera & Gör Saker Tillsammans.",
+        "hero_subtitle": "Skapa realtidsplaner med dina vänner. Se vem som har bockat av vad och fira er framgång med bilder!",
+        "create_plan": "Skapa ny plan",
+        "join_plan": "Gå med i plan",
+        "active_plans": "Dina aktiva planer",
+        "plans_count": "{{count}} planer",
+        "no_active_plans": "Inga aktiva planer än. Skapa din första!"
+    },
+    "plans": {
+        "all_plans": "Alla Planer",
+        "progress": "Framsteg",
+        "completed": "Klara",
+        "step_of": "{{current}} av {{total}} steg klara",
+        "what_else": "Vad mer?",
+        "fixed_by": "FIXAT AV {{name}}",
+        "reopen_plan": "Öppna planen igen",
+        "empty_plan": "Planen är tom. Vad väntar ni på?",
+        "delete_plan_confirm": "Vill du verkligen radera denna plan?",
+        "delete_completed_plan_confirm": "Vill du radera denna klara plan?",
+        "only_owner_can_delete": "Endast ägaren kan radera en aktiv plan",
+        "plan_deleted": "Plan raderad",
+        "plan_created": "Plan skapad!",
+        "plan_reopened": "Plan öppnad igen",
+        "item_added": "Punkt tillagd",
+        "item_removed": "Punkt borttagen",
+        "item_updated": "Punkt uppdaterad",
+        "join_invalid": "Ogiltig eller utgången inbjudningslänk",
+        "join_success": "Gick med i {{name}}!",
+        "join_error": "Kunde inte gå med i planen",
+        "update_error": "Kunde inte uppdatera",
+        "create_error": "Kunde inte skapa planen"
+    },
+    "profile": {
+        "title": "Profil",
+        "language": "Språk",
+        "theme": "Tema",
+        "dark": "Mörkt",
+        "light": "Ljust"
+    }
+}

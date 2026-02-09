@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { type User, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../lib/firebase';
@@ -9,6 +10,7 @@ export function useAuth() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { i18n } = useTranslation();
 
     useEffect(() => {
         let unsubscribe: (() => void) | undefined;
@@ -25,7 +27,12 @@ export function useAuth() {
                             const userSnap = await getDoc(userRef);
 
                             if (userSnap.exists()) {
-                                setUserProfile(userSnap.data() as UserProfile);
+                                const profile = userSnap.data() as UserProfile;
+                                setUserProfile(profile);
+                                // If profile has a language, sync it
+                                if (profile.language && profile.language !== i18n.language) {
+                                    i18n.changeLanguage(profile.language);
+                                }
                             } else {
                                 // Create new user profile
                                 const newProfile: UserProfile = {
@@ -35,6 +42,7 @@ export function useAuth() {
                                     photoURL: firebaseUser.photoURL || undefined,
                                     friends: [],
                                     createdAt: Timestamp.now(),
+                                    language: i18n.language || 'en',
                                 };
                                 await setDoc(userRef, newProfile);
                                 setUserProfile(newProfile);
