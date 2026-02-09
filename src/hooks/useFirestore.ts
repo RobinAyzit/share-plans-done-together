@@ -162,7 +162,7 @@ export async function deletePlan(planId: string) {
     await deleteDoc(planRef);
 }
 
-export async function addItemToPlan(planId: string, text: string, imageUrl?: string): Promise<void> {
+export async function addItemToPlan(planId: string, text: string, userId: string, userName: string, imageUrl?: string): Promise<void> {
     const planRef = doc(db, 'plans', planId);
     const newItem: Item = {
         id: Math.random().toString(36).substring(2, 11),
@@ -176,6 +176,17 @@ export async function addItemToPlan(planId: string, text: string, imageUrl?: str
         completed: false, // Reset completed if new item added
         completedAt: null, // Clear completion timestamp
     });
+
+    // Notify others that a new item was added
+    const planSnap = await getDoc(planRef);
+    if (planSnap.exists()) {
+        const plan = planSnap.data() as Plan;
+        Object.keys(plan.members).forEach(uid => {
+            if (uid !== userId) {
+                sendAppNotification(uid, 'Ny punkt! 💡', `${userName} la till "${text}" i ${plan.name}`, 'plan_update', planId);
+            }
+        });
+    }
 }
 
 export async function updateItem(planId: string, itemId: string, updates: Partial<Item>): Promise<void> {
@@ -242,20 +253,24 @@ export async function toggleItemChecked(
     if (!planSnap.exists()) return;
 
     const plan = planSnap.data() as Plan;
-    const updatedItems = plan.items.map((item) => {
-        if (item.id === itemId) {
-            const newChecked = !item.checked;
+    const item = plan.items.find(i => i.id === itemId);
+    if (!item) return;
+
+    const updatedItems = plan.items.map((i) => {
+        if (i.id === itemId) {
+            const newChecked = !i.checked;
             return {
-                ...item,
+                ...i,
                 checked: newChecked,
                 checkedBy: newChecked ? displayName : undefined,
                 checkedByUid: newChecked ? userId : undefined,
             };
         }
-        return item;
+        return i;
     });
 
-    const allChecked = updatedItems.every((i) => i.checked);
+    const allChecked = updatedItems.length > 0 && updatedItems.every((i) => i.checked);
+    const isNowChecked = !item.checked;
 
     await updateDoc(planRef, {
         items: updatedItems,
@@ -264,11 +279,15 @@ export async function toggleItemChecked(
         lastModified: Timestamp.now(),
     });
 
-    if (allChecked) {
-        Object.keys(plan.members).forEach(uid => {
-            sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
-        });
-    }
+    Object.keys(plan.members).forEach(uid => {
+        if (uid !== userId) { // Don't notify the person who did it
+            if (allChecked && isNowChecked) {
+                sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
+            } else if (isNowChecked) {
+                sendAppNotification(uid, 'Punkt avklarad! ✅', `${displayName} fixade "${item.text}" i ${plan.name}`, 'plan_update', planId);
+            }
+        }
+    });
 }
 
 export async function addMemberToPlan(

@@ -241,7 +241,8 @@ function App() {
         imageUrl = await compressAndToBase64(itemFile);
       }
 
-      await addItemToPlan(planId, text.trim(), imageUrl);
+      if (!user || !userProfile) return;
+      await addItemToPlan(planId, text.trim(), user.uid, userProfile.displayName, imageUrl);
       setAddInput('');
       setItemFile(null);
       showToast('Punkt tillagd');
