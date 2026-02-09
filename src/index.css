@@ -2,3 +2,12 @@
 
 /* Theme variant for Tailwind v4 selector strategy */
 @variant dark (&:where(.dark, .dark *));
+
+@utility scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
