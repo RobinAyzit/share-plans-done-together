@@ -245,7 +245,8 @@ export async function toggleItemChecked(
     planId: string,
     itemId: string,
     userId: string,
-    displayName: string
+    displayName: string,
+    imageUrl?: string
 ): Promise<void> {
     const planRef = doc(db, 'plans', planId);
     const planSnap = await getDoc(planRef);
@@ -264,6 +265,7 @@ export async function toggleItemChecked(
                 checked: newChecked,
                 checkedBy: newChecked ? displayName : undefined,
                 checkedByUid: newChecked ? userId : undefined,
+                imageUrl: newChecked ? (imageUrl || i.imageUrl) : i.imageUrl,
             };
         }
         return i;

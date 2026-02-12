@@ -46,7 +46,8 @@
         "join_success": "{{name}} planına katıldın!",
         "join_error": "Plana katılamadı",
         "update_error": "Güncellenemedi",
-        "create_error": "Plan oluşturulamadı"
+        "create_error": "Plan oluşturulamadı",
+        "complete_with_image": "Fotoğrafla tamamla"
     },
     "profile": {
         "title": "Profil",

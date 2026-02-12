@@ -46,7 +46,8 @@
         "join_success": "Gick med i {{name}}!",
         "join_error": "Kunde inte gå med i planen",
         "update_error": "Kunde inte uppdatera",
-        "create_error": "Kunde inte skapa planen"
+        "create_error": "Kunde inte skapa planen",
+        "complete_with_image": "Bocka av med bild"
     },
     "profile": {
         "title": "Profil",

@@ -245,13 +245,23 @@ function App() {
     }
   };
 
-  const handleToggleItem = async (planId: string, itemId: string) => {
+  const handleToggleItem = async (planId: string, itemId: string, imageUrl?: string) => {
     if (!user || !userProfile) return;
 
     try {
-      await toggleItemChecked(planId, itemId, user.uid, userProfile.displayName);
+      await toggleItemChecked(planId, itemId, user.uid, userProfile.displayName, imageUrl);
     } catch (error: any) {
       console.error('Error toggling item:', error);
+      showToast(t('plans.update_error'));
+    }
+  };
+
+  const handleToggleWithImage = async (planId: string, itemId: string, file: File) => {
+    try {
+      const imageUrl = await compressAndToBase64(file);
+      await handleToggleItem(planId, itemId, imageUrl);
+    } catch (error) {
+      console.error('Error uploading image for item:', error);
       showToast(t('plans.update_error'));
     }
   };
@@ -686,12 +696,32 @@ function App() {
                           layout
                           className={`flex items-start gap-4 p-5 rounded-3xl border transition-all group ${item.checked ? 'bg-zinc-50 dark:bg-zinc-950 border-emerald-500/10 dark:border-emerald-500/10 opacity-70' : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 shadow-md dark:shadow-xl dark:shadow-black/20'}`}
                         >
-                          <button
-                            onClick={() => handleToggleItem(currentPlan.id, item.id)}
-                            className={`mt-1 w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all ${item.checked ? 'bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'border-zinc-700 hover:border-emerald-500'}`}
-                          >
-                            {item.checked && <Check className="w-4 h-4 stroke-[4px]" />}
-                          </button>
+                          <div className="flex flex-col gap-2 mt-1">
+                            <button
+                              onClick={() => handleToggleItem(currentPlan.id, item.id)}
+                              className={`w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all ${item.checked ? 'bg-emerald-500 border-emerald-500 text-black shadow-lg shadow-emerald-500/20' : 'border-zinc-700 hover:border-emerald-500'}`}
+                            >
+                              {item.checked && <Check className="w-4 h-4 stroke-[4px]" />}
+                            </button>
+
+                            {!item.checked && (
+                              <label
+                                className="w-7 h-7 rounded-xl border-2 border-zinc-700 hover:border-emerald-500 flex items-center justify-center cursor-pointer transition-all text-zinc-500 hover:text-emerald-500"
+                                title={t('plans.complete_with_image')}
+                              >
+                                <Camera className="w-4 h-4" />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handleToggleWithImage(currentPlan.id, item.id, file);
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
 
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between">
