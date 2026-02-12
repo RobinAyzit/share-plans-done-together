@@ -377,12 +377,15 @@ function App() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800/50 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => setActiveTab('home')}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-95"
+          >
             <div className="w-10 h-10 overflow-hidden rounded-xl rotate-3 hover:rotate-6 transition-transform shadow-lg shadow-black/5 dark:shadow-none">
               <img src="pwa-icon.png" className="w-full h-full object-cover scale-[1.5]" alt="Logo" />
             </div>
             <h1 className="text-xl font-black italic tracking-tighter">Done<span className="text-emerald-500">Together</span></h1>
-          </div>
+          </button>
 
           <div className="flex items-center gap-4">
             {incomingRequests && incomingRequests.length > 0 && (
