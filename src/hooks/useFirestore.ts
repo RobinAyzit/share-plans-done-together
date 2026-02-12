@@ -11,7 +11,6 @@ import {
     arrayUnion,
     addDoc,
     deleteDoc,
-    writeBatch,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Plan, PlanMember, Item, Comment } from '../types';
@@ -247,7 +246,7 @@ export async function addItemToPlan(
     userName: string,
     imageUrl?: string,
     deadline?: Timestamp,
-    recurring?: 'daily' | 'weekly' | 'monthly' | 'none'
+    recurring?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'none'
 ): Promise<void> {
     const planRef = doc(db, 'plans', planId);
     const newItem: Item = {

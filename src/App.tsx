@@ -17,8 +17,6 @@ import {
   updatePlan,
   addMemberToPlan,
   addTaskComment,
-  updateItemDeadline,
-  updateItemRecurring,
   toggleReaction,
   toggleCommentLike,
   cleanupExpiredPlans
@@ -31,9 +29,9 @@ import { AuthModal } from './components/AuthModal';
 import { FriendsModal } from './components/FriendsModal';
 import { ShareModal } from './components/ShareModal';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-import type { Plan, Item, Comment } from './types';
+import type { Plan, Item } from './types';
 import { Timestamp } from 'firebase/firestore';
-import { Calendar, Repeat, MessageCircle, Tag, Palette } from 'lucide-react';
+import { Calendar, Repeat, MessageCircle, Tag } from 'lucide-react';
 
 const EMOJIS = ['❤️', '🔥', '💪', '🙏', '😂', '💯']; // Reactions supported by the app
 
@@ -52,7 +50,7 @@ function App() {
     }
   }, [theme]);
   const { user, userProfile, loading: authLoading, error: authError, signInWithGoogle, signOut, isAuthenticated } = useAuth();
-  const { plans, loading: _plansLoading } = usePlans(user?.uid);
+  const { plans } = usePlans(user?.uid);
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
   const { plan: currentPlan } = usePlan(currentPlanId);
   const { incomingRequests } = useFriendRequests(user?.uid);
@@ -379,11 +377,8 @@ function App() {
     return Math.round((checked / plan.items.length) * 100);
   };
 
-  const sortedPlans = [...plans].sort((a, b) => {
-    const timeA = a.created?.toMillis?.() || 0;
-    const timeB = b.created?.toMillis?.() || 0;
-    return timeB - timeA;
-  });
+  const filteredPlans = plans.filter(p => !selectedCategory || p.category === selectedCategory);
+
   const handleAddComment = async (planId: string, itemId: string) => {
     if (!commentInput.trim() || !user || !userProfile) return;
     try {
@@ -402,8 +397,6 @@ function App() {
       console.error('Error toggling comment like:', err);
     }
   };
-
-  const filteredPlans = plans.filter(p => !selectedCategory || p.category === selectedCategory);
   const activePlans = filteredPlans.filter((p) => !p.completed);
   const completedPlans = filteredPlans.filter((p) => p.completed);
 
