@@ -53,15 +53,15 @@ export function useAuth() {
 
                         setLoading(false);
                         setError(null);
-                    } catch (innerError: any) {
+                    } catch (innerError) {
                         console.error('Error in auth state change:', innerError);
-                        setError(`Firestore-fel: ${innerError.message}`);
+                        setError(`Firestore-fel: ${innerError instanceof Error ? innerError.message : 'Okänt fel'}`);
                         setLoading(false);
                     }
                 });
-            } catch (authError: any) {
+            } catch (authError) {
                 console.error('Firebase Auth initialization error:', authError);
-                setError(`Firebase Authentication-fel: ${authError.message}. Kontrollera att Authentication är aktiverad i Firebase Console.`);
+                setError(`Firebase Authentication-fel: ${authError instanceof Error ? authError.message : 'Okänt fel'}. Kontrollera att Authentication är aktiverad i Firebase Console.`);
                 setLoading(false);
             }
         };
@@ -73,14 +73,14 @@ export function useAuth() {
                 unsubscribe();
             }
         };
-    }, []);
+    }, [i18n]);
 
     const signInWithGoogle = async () => {
         try {
             setError(null);
             await signInWithPopup(auth, googleProvider);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Ett fel uppstod');
             console.error('Sign in error:', err);
         }
     };
@@ -89,8 +89,8 @@ export function useAuth() {
         try {
             setError(null);
             await firebaseSignOut(auth);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Ett fel uppstod');
             console.error('Sign out error:', err);
         }
     };

@@ -50,7 +50,7 @@ export function JoinModal({ onClose, onJoin, user, userProfile }: JoinModalProps
 
             onJoin(invite.planId);
             onClose();
-        } catch (err: any) {
+        } catch (err) {
             console.error('Error joining plan:', err);
             setError('Kunde inte gå med i planen. Försök igen.');
         } finally {

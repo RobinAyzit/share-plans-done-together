@@ -27,7 +27,7 @@ export function ShareModal({ plan, currentUserId, currentUserName, onClose }: Sh
             const code = await getOrCreatePlanInvite(plan.id, plan.name, currentUserId, currentUserName);
             const link = generateInviteLink(code);
             setInviteLink(link);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error generating invite:', error);
         } finally {
             setGenerating(false);
@@ -45,7 +45,7 @@ export function ShareModal({ plan, currentUserId, currentUserName, onClose }: Sh
             await addMemberToPlan(plan.id, friendUid, friendEmail, friendName, friendPhoto);
             setShareMessage(`${friendName} har lagts till i planen!`);
             setTimeout(() => setShareMessage(''), 2000);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error sharing with friend:', error);
         }
     };

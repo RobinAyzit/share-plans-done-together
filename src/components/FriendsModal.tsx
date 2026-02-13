@@ -35,7 +35,7 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
             } else {
                 setSearchResult(user);
             }
-        } catch (error: any) {
+        } catch {
             setSearchError('Ett fel uppstod vid sökningen');
         } finally {
             setSearching(false);
@@ -49,8 +49,8 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
             setSearchResult(null);
             setSearchEmail('');
             setTimeout(() => setActionMessage(''), 2000);
-        } catch (error: any) {
-            setSearchError(error.message);
+        } catch (error) {
+            setSearchError(error instanceof Error ? error.message : 'Ett fel uppstod');
         }
     };
 
@@ -59,7 +59,7 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
             await acceptFriendRequest(requestId);
             setActionMessage('Vänförfrågan accepterad!');
             setTimeout(() => setActionMessage(''), 2000);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error accepting request:', error);
         }
     };
@@ -69,7 +69,7 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
             await declineFriendRequest(requestId);
             setActionMessage('Vänförfrågan avvisad');
             setTimeout(() => setActionMessage(''), 2000);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error declining request:', error);
         }
     };
@@ -81,7 +81,7 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
             await removeFriend(currentUser.uid, friendId);
             setActionMessage('Vän borttagen');
             setTimeout(() => setActionMessage(''), 2000);
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error removing friend:', error);
         }
     };

@@ -152,7 +152,7 @@ function App() {
     };
 
     handleJoin();
-  }, [pendingInviteCode, user, userProfile]);
+  }, [pendingInviteCode, user, userProfile, t, joiningPlan]);
 
   // Show auth modal on load if not authenticated
   useEffect(() => {
@@ -202,7 +202,7 @@ function App() {
     if (!user || !userProfile) return;
     try {
       await toggleReaction(planId, itemId, user.uid, userProfile.displayName, emoji);
-    } catch (err: any) {
+    } catch {
       showToast(t('plans.update_error'));
     }
   };
@@ -211,7 +211,7 @@ function App() {
     const count = 200;
     const defaults = { origin: { y: 0.7 } };
 
-    function fire(particleRatio: number, opts: any) {
+    function fire(particleRatio: number, opts: confetti.Options) {
       confetti({
         ...defaults,
         ...opts,
@@ -258,7 +258,7 @@ function App() {
       setCurrentPlanId(planId);
       setActiveTab('plans');
       showToast(t('plans.plan_created'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating plan:', error);
       showToast(t('plans.create_error'));
     } finally {
@@ -271,7 +271,7 @@ function App() {
 
     try {
       await toggleItemChecked(planId, itemId, user.uid, userProfile.displayName, imageUrl);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error toggling item:', error);
       showToast(t('plans.update_error'));
     }
@@ -305,7 +305,7 @@ function App() {
       setItemDeadline('');
       setItemRecurring('none');
       showToast(t('plans.item_added'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding item:', error);
       showToast(t('plans.create_error'));
     }
@@ -315,7 +315,7 @@ function App() {
     try {
       await deleteItem(planId, itemId);
       showToast(t('plans.item_removed'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting item:', error);
     }
   };
@@ -328,7 +328,7 @@ function App() {
       setShowEditModal(false);
       setEditingItem(null);
       showToast(t('plans.item_updated'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error editing item:', error);
     }
   };
@@ -350,7 +350,7 @@ function App() {
           setCurrentPlanId(null);
         }
         showToast(t('plans.plan_deleted'));
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error deleting plan:', error);
         showToast(t('plans.plan_deleted_error'));
       }
@@ -361,7 +361,7 @@ function App() {
     try {
       await updatePlan(planId, { completed: false });
       showToast(t('plans.plan_reopened'));
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error reopening plan:', error);
     }
   };
@@ -586,7 +586,7 @@ function App() {
                         <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-500 italic relative z-10">
                           <span>{t('plans.step_of', { current: plan.items?.filter(i => i.checked).length || 0, total: plan.items?.length || 0 })}</span>
                           <div className="flex -space-x-2">
-                            {plan.members && Object.values(plan.members).slice(0, 3).map((m: any, i) => (
+                            {plan.members && Object.values(plan.members).slice(0, 3).map((m, i) => (
                               <img
                                 key={i}
                                 src={m.photoURL || `https://ui-avatars.com/api/?name=${m.displayName}&background=333&color=fff`}

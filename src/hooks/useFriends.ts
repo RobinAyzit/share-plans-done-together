@@ -19,12 +19,10 @@ import { sendAppNotification } from '../lib/notifications';
 
 export function useFriends(userId: string | undefined) {
     const [friends, setFriends] = useState<UserProfile[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !!userId);
 
     useEffect(() => {
         if (!userId) {
-            setFriends([]);
-            setLoading(false);
             return;
         }
 
@@ -67,13 +65,10 @@ export function useFriends(userId: string | undefined) {
 export function useFriendRequests(userId: string | undefined) {
     const [incomingRequests, setIncomingRequests] = useState<FriendRequest[]>([]);
     const [outgoingRequests, setOutgoingRequests] = useState<FriendRequest[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !!userId);
 
     useEffect(() => {
         if (!userId) {
-            setIncomingRequests([]);
-            setOutgoingRequests([]);
-            setLoading(false);
             return;
         }
 

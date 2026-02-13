@@ -18,13 +18,11 @@ import { sendAppNotification } from '../lib/notifications';
 
 export function usePlans(userId: string | undefined) {
     const [plans, setPlans] = useState<Plan[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !!userId);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!userId) {
-            setPlans([]);
-            setLoading(false);
             return;
         }
 
@@ -67,7 +65,7 @@ export function usePlans(userId: string | undefined) {
 
 export function usePlan(planId: string | null) {
     const [plan, setPlan] = useState<Plan | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => !!planId);
     const [error, setError] = useState<string | null>(null);
 
     const checkRecurringTasks = useCallback(async (currentPlan: Plan) => {
@@ -141,8 +139,6 @@ export function usePlan(planId: string | null) {
 
     useEffect(() => {
         if (!planId) {
-            setPlan(null);
-            setLoading(false);
             return;
         }
 
@@ -223,9 +219,9 @@ export async function updatePlan(planId: string, updates: Partial<Plan>) {
     const planRef = doc(db, 'plans', planId);
 
     // If we are reopening a plan, clear the completedAt timestamp
-    const finalUpdates = { ...updates };
+    const finalUpdates: Record<string, unknown> = { ...updates };
     if (updates.completed === false) {
-        (finalUpdates as any).completedAt = null;
+        finalUpdates.completedAt = null;
     }
 
     await updateDoc(planRef, {
