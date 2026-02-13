@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="sv">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="vite.svg" />
+  <link rel="apple-touch-icon" href="pwa-icon.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#09090b">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, healthy-ui=true" />
+  <meta name="description"
+    content="Skapa och dela planer i realtid med vänner och team. Samarbeta och slutför tillsammans." />
+  <title>DoneTogether</title>
+  <script type="module" crossorigin src="/DoneTogether/assets/index-Dj7AujL4.js"></script>
+  <link rel="stylesheet" crossorigin href="/DoneTogether/assets/index-1aYsDnzZ.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      document.body.innerHTML = `
+          <div style="background:#09090b;color:#fff;min-height:100vh;padding:20px;font-family:monospace;font-size:14px;">
+            <h1 style="color:#ef4444;margin-bottom:20px;">CRITICAL ERROR (Pre-React)</h1>
+            <div style="background:#18181b;padding:20px;border:1px solid #27272a;border-radius:12px;overflow:auto;">
+              <div style="color:#f87171;margin-bottom:10px;">${message}</div>
+              <div style="color:#71717a;">${source}:${lineno}:${colno}</div>
+              <pre style="margin-top:15px;color:#a1a1aa;white-space:pre-wrap;">${error ? error.stack : 'No stack trace'}</pre>
+            </div>
+          </div>
+        `;
+    };
+    // Catch unhandled promise rejections
+    window.onunhandledrejection = function (event) {
+      document.body.innerHTML = `
+         <div style="background:#09090b;color:#fff;min-height:100vh;padding:20px;font-family:monospace;font-size:14px;">
+            <h1 style="color:#ef4444;margin-bottom:20px;">UNHANDLED PROMISE REJECTION</h1>
+            <div style="background:#18181b;padding:20px;border:1px solid #27272a;border-radius:12px;overflow:auto;">
+              <div style="color:#f87171;margin-bottom:10px;">Reason: ${event.reason}</div>
+            </div>
+          </div>
+        `;
+    };
+  </script>
+</body>
+
+</html>

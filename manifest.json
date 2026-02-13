@@ -1,0 +1,17 @@
+{
+    "name": "DoneTogether",
+    "short_name": "DoneTogether",
+    "description": "Planera och gör saker tillsammans i realtid.",
+    "start_url": "/DoneTogether/",
+    "display": "standalone",
+    "background_color": "#09090b",
+    "theme_color": "#10b981",
+    "icons": [
+        {
+            "src": "pwa-icon.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}
