@@ -2,7 +2,9 @@
 
 DoneTogether is a modern, fast, and collaborative planning app built with React, TypeScript, and Firebase. It allows friends, families, or teams to create shared plans, follow progress in real-time, and celebrate achievements together with images.
 
-![App Preview](https://via.placeholder.com/800x400?text=DoneTogether+App+Preview)
+[![App Preview](https://img.shields.io/badge/Live_Demo-Visit_App-10b981?style=for-the-badge&logo=vercel)](https://robinayzit.github.io/DoneTogether/)
+
+**[🌐 Try the Live App](https://robinayzit.github.io/DoneTogether/)**
 
 ## ✨ Features
 
