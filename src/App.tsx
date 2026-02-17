@@ -903,8 +903,14 @@ function App() {
                           <p className="text-[10px] text-amber-700 dark:text-amber-300 leading-relaxed mb-2">
                             As a token of my gratitude, everyone who supports me with a coffee will be featured in the "Special Thanks" section of my next project!
                           </p>
-                          <p className="text-[9px] text-amber-600 dark:text-amber-400 italic">
-                            💡 Please include your name or a signature in your message so I can give you the credit you deserve. Your support is what makes future development possible.
+                          <p className="text-[10px] text-amber-700 dark:text-amber-300 leading-relaxed mb-2">
+                            Please include your name or a signature in your message so I can give you the credit you deserve. Your support is what makes future development possible.
+                          </p>
+                          <p className="text-[10px] text-amber-700 dark:text-amber-300 leading-relaxed mb-2">
+                            Your support empowers me to keep building and refining the tools you love.
+                          </p>
+                          <p className="text-[9px] text-amber-600 dark:text-amber-400 italic font-semibold">
+                            — Robin Ayzit
                           </p>
                         </div>
                       </div>
