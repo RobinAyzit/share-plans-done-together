@@ -887,8 +887,8 @@ function App() {
                       className="block p-6 rounded-[28px] bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border-2 border-amber-200 dark:border-amber-900/30 hover:border-amber-300 dark:hover:border-amber-800/50 transition-all hover:shadow-lg hover:-translate-y-1 group"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-emerald-500 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform">
-                          <img src="coffee-icon.png" alt="Coffee" className="w-full h-full object-cover" />
+                        <div className="flex-shrink-0 w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <img src="coffee-icon.png" alt="Coffee" className="w-full h-full object-contain" />
                         </div>
                         <div className="flex-1 text-left">
                           <h4 className="text-sm font-black text-zinc-900 dark:text-white uppercase tracking-tight mb-2">
