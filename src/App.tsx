@@ -923,6 +923,13 @@ function App() {
                   >
                     {t('auth.logout')}
                   </button>
+
+                  {/* Copyright Footer */}
+                  <div className="w-full text-center py-6 mt-4">
+                    <p className="text-[10px] text-zinc-400 dark:text-zinc-600 font-medium tracking-wide">
+                      Created by © 2024 nRn World
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
