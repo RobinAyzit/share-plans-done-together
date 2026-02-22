@@ -7,12 +7,21 @@
         "save": "Spara",
         "delete": "Radera",
         "edit": "Redigera",
-        "unknown": "Okänd"
+        "unknown": "Okänd",
+        "or": "ELLER"
     },
     "auth": {
         "login": "Logga in",
         "login_subtitle": "Börja planera och utföra saker tillsammans med dina vänner.",
         "continue_google": "Fortsätt med Google",
+        "login_email": "Logga in med E-post",
+        "login_anonymous": "Fortsätt anonymt",
+        "email": "E-post",
+        "password": "Lösenord",
+        "email_placeholder": "din@epost.se",
+        "password_placeholder": "Ditt lösenord",
+        "no_account": "Har inget konto?",
+        "sign_up": "Registrera dig",
         "logout": "Logga ut"
     },
     "home": {

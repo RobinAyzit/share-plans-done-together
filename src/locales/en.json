@@ -7,12 +7,21 @@
         "save": "Save",
         "delete": "Delete",
         "edit": "Edit",
-        "unknown": "Unknown"
+        "unknown": "Unknown",
+        "or": "OR"
     },
     "auth": {
         "login": "Log in",
         "login_subtitle": "Start planning and doing things together with your friends.",
         "continue_google": "Continue with Google",
+        "login_email": "Log in with Email",
+        "login_anonymous": "Continue anonymously",
+        "email": "Email",
+        "password": "Password",
+        "email_placeholder": "your@email.com",
+        "password_placeholder": "Your password",
+        "no_account": "Don't have an account?",
+        "sign_up": "Sign up",
         "logout": "Log out"
     },
     "home": {
