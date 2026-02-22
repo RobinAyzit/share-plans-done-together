@@ -7,7 +7,9 @@
         "save": "Kaydet",
         "delete": "Sil",
         "edit": "Düzenle",
-        "unknown": "Bilinmiyor"
+        "unknown": "Bilinmiyor",
+        "or": "VEYA",
+        "home": "EV"
     },
     "auth": {
         "login": "Giriş Yap",
