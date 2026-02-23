@@ -71,5 +71,10 @@ We love contributions! Whether it's fixing a bug, adding a feature, or improving
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
----
-Built with ❤️ by Robin Ayzit
+## 🙏 Support
+
+If you like this project, consider to:
+
+*   ⭐ Star the project on GitHub
+*   ☕ [Buy me a coffee](https://buymeacoffee.com/nrnworld)
+*   📢 Share with your friends
