@@ -71,6 +71,12 @@ We love contributions! Whether it's fixing a bug, adding a feature, or improving
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
+## 👨‍💻 Author
+
+Created 2026 by **© nRn World**
+
+📧 [bynrnworld@gmail.com](mailto:bynrnworld@gmail.com)
+
 ## 🙏 Support
 
 If you like this project, consider to:
