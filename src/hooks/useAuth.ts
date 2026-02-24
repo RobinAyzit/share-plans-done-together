@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { type User, signOut as firebaseSignOut, getRedirectResult, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
+import { type User, signOut as firebaseSignOut, GoogleAuthProvider, signInWithCredential, signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import type { UserProfile } from '../types';
@@ -15,15 +15,6 @@ export function useAuth() {
     const { i18n } = useTranslation();
 
     useEffect(() => {
-        // Initialize GoogleAuth for native platforms
-        if (Capacitor.isNativePlatform()) {
-            GoogleAuth.initialize({
-                clientId: '677287957451-6vja60qu97qvobgr61li4b3dlrj1pslq.apps.googleusercontent.com',
-                scopes: ['profile', 'email'],
-                grantOfflineAccess: true,
-            });
-        }
-
         const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
             try {
                 setUser(firebaseUser);
@@ -33,6 +24,13 @@ export function useAuth() {
                     if (userSnap.exists()) {
                         const profile = userSnap.data() as UserProfile;
                         setUserProfile(profile);
+                        
+                        // Sync language from profile if it exists and is different
+                        // But only if we are on initial load (loading is true) or if the profile language is explicitly set
+                        // We check i18n.language against profile.language to avoid unnecessary updates
+                        if (profile.language && profile.language !== i18n.language) {
+                            i18n.changeLanguage(profile.language);
+                        }
                     } else {
                         const newProfile: UserProfile = {
                             uid: firebaseUser.uid,
@@ -56,38 +54,9 @@ export function useAuth() {
             }
         });
 
-        // Kolla efter redirect-resultat (för både webb och mobil)
-        const checkRedirect = async () => {
-            try {
-                console.log('🔍 Checking for redirect result...');
-                const result = await getRedirectResult(auth);
-                if (result?.user) {
-                    console.log('✅ Redirect login success:', result.user.email);
-                    console.log('✅ User ID:', result.user.uid);
-                    console.log('✅ Provider:', result.providerId);
-                } else {
-                    console.log('⚠️ No redirect result found (this is normal on first page load)');
-                    console.log('⚠️ Current URL:', window.location.href);
-                    console.log('⚠️ URL params:', window.location.search);
-                }
-            } catch (err: any) {
-                console.error('❌ Redirect result error:', err);
-                console.error('❌ Error code:', err.code);
-                console.error('❌ Error message:', err.message);
-                console.error('❌ Full error:', JSON.stringify(err, null, 2));
-                if (err.code === 'auth/unauthorized-domain') {
-                    console.error('🔧 FIX: Add localhost to Firebase Authorized Domains');
-                } else if (err.code === 'auth/popup-blocked') {
-                    console.error('🔧 FIX: Enable popups or use redirect (already using redirect)');
-                }
-            }
-        };
-        
-        // Wait a bit before checking redirect result
-        setTimeout(checkRedirect, 500);
-
         return () => unsubscribe();
-    }, [i18n]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const signInWithGoogle = async () => {
         try {
@@ -95,11 +64,7 @@ export function useAuth() {
             setError(null);
             
             if (Capacitor.isNativePlatform()) {
-                console.log('📱 Starting native sign in with explicit clientId...');
-                // Some versions of the plugin work better if we pass the clientId here
-                // For native platforms, we use the serverClientId (Web Client ID)
                 const googleUser = await GoogleAuth.signIn();
-                console.log('✅ Native sign in success, getting credential...');
                 const idToken = googleUser.authentication.idToken;
                 
                 if (!idToken) {
@@ -107,27 +72,18 @@ export function useAuth() {
                 }
                 
                 const credential = GoogleAuthProvider.credential(idToken);
-                const userCredential = await signInWithCredential(auth, credential);
-                console.log('✅ Firebase sign in with credential success:', userCredential.user.email);
+                await signInWithCredential(auth, credential);
             } else {
-                console.log('🌐 Starting Firebase POPUP sign in (changed from redirect)...');
-                console.log('🌐 Current URL:', window.location.href);
-                
-                // Create a fresh GoogleAuthProvider instance
                 const provider = new GoogleAuthProvider();
                 provider.setCustomParameters({
                     prompt: 'select_account'
                 });
                 
-                // Try popup instead of redirect for localhost
-                const result = await signInWithPopup(auth, provider);
-                console.log('✅ Popup sign in success:', result.user.email);
+                await signInWithPopup(auth, provider);
             }
             
         } catch (err: any) {
-            console.error('❌ Detailed sign in error:', err);
-            console.error('❌ Error code:', err.code);
-            console.error('❌ Error message:', err.message);
+            console.error('Sign in error:', err);
             const errorMessage = err.message || "Something went wrong";
             setError(`Inloggning misslyckades: ${errorMessage}`);
         } finally {
@@ -139,9 +95,12 @@ export function useAuth() {
         try {
             setError(null);
             await firebaseSignOut(auth);
+            if (Capacitor.isNativePlatform()) {
+                await GoogleAuth.signOut();
+            }
         } catch (err: any) {
-            setError(err.message);
             console.error('Sign out error:', err);
+            setError('Utloggning misslyckades');
         }
     };
 
@@ -152,6 +111,6 @@ export function useAuth() {
         error,
         signInWithGoogle,
         signOut,
-        isAuthenticated: !!user,
+        isAuthenticated: !!user
     };
 }
