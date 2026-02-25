@@ -668,43 +668,45 @@ function App() {
                         e.preventDefault();
                         handleAddItem(currentPlan.id, addInput);
                       }}
-                      className="relative group"
+                      className="space-y-3"
                     >
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                        <label className="cursor-pointer text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 transition-colors bg-zinc-50 dark:bg-zinc-950 p-2 rounded-xl border border-zinc-200 dark:border-zinc-800">
-                          <Camera className="w-5 h-5" />
-                          <input type="file" accept="image/*" className="hidden" onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) setItemFile(file);
-                          }} />
-                        </label>
-                        {itemFile && (
-                          <div className="relative ml-1">
-                            <img src={URL.createObjectURL(itemFile)} className="w-8 h-8 rounded-lg border border-emerald-500 object-cover" alt="" />
-                            <button type="button" onClick={() => setItemFile(null)} className="absolute -top-1 -right-1 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-full border border-zinc-200 dark:border-zinc-800">
-                              <X className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        type="text"
-                        value={addInput}
-                        onChange={(e) => setAddInput(e.target.value)}
-                        placeholder={t('plans.what_else')}
-                        className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl py-5 pl-14 pr-32 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all font-bold italic shadow-sm"
-                      />
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setShowGpsAdd(!showGpsAdd)}
-                          className={`p-2 rounded-xl border transition-all ${selectedAddLocation || showGpsAdd ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800'}`}
-                        >
-                          <MapPin className="w-5 h-5" />
-                        </button>
-                        <button type="submit" disabled={!addInput.trim()} className="p-2.5 bg-emerald-500 text-black rounded-xl disabled:opacity-20 shadow-lg shadow-emerald-500/20 transition-all hover:scale-110 active:scale-95">
-                          <Plus className="w-5 h-5 stroke-[4px]" />
-                        </button>
+                      <div className="relative group">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                          <label className="cursor-pointer text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 transition-colors bg-zinc-50 dark:bg-zinc-950 p-2 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                            <Camera className="w-5 h-5" />
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setItemFile(file);
+                            }} />
+                          </label>
+                          {itemFile && (
+                            <div className="relative ml-1">
+                              <img src={URL.createObjectURL(itemFile)} className="w-8 h-8 rounded-lg border border-emerald-500 object-cover" alt="" />
+                              <button type="button" onClick={() => setItemFile(null)} className="absolute -top-1 -right-1 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-full border border-zinc-200 dark:border-zinc-800">
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        <input
+                          type="text"
+                          value={addInput}
+                          onChange={(e) => setAddInput(e.target.value)}
+                          placeholder={t('plans.what_else')}
+                          className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl py-5 pl-14 pr-32 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all font-bold italic shadow-sm"
+                        />
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowGpsAdd(!showGpsAdd)}
+                            className={`p-2 rounded-xl border transition-all ${selectedAddLocation || showGpsAdd ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800'}`}
+                          >
+                            <MapPin className="w-5 h-5" />
+                          </button>
+                          <button type="submit" disabled={!addInput.trim()} className="p-2.5 bg-emerald-500 text-black rounded-xl disabled:opacity-20 shadow-lg shadow-emerald-500/20 transition-all hover:scale-110 active:scale-95">
+                            <Plus className="w-5 h-5 stroke-[4px]" />
+                          </button>
+                        </div>
                       </div>
 
                       <AnimatePresence>
