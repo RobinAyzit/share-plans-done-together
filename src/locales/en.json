@@ -106,6 +106,7 @@
         "location_selected_toast": "{{type}} selected!",
         "current_location_name": "My position",
         "manual_location_name": "Selected place",
+        "gps_radius_text": "Notification is sent when you are within 100m of this location.",
         "wall_of_fame": {
             "title": "The Wall of Fame",
             "subtitle": "Support the Development & Join the Credits",

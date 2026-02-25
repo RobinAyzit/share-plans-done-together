@@ -96,6 +96,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showGpsAdd, setShowGpsAdd] = useState(false);
   const [selectedAddLocation, setSelectedAddLocation] = useState<Item['location'] | null>(null);
+  const [showEditGps, setShowEditGps] = useState(false);
   const [editingLabelId, setEditingLabelId] = useState<string | null>(null);
   const [tempLabel, setTempLabel] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -317,18 +318,6 @@ function App() {
     }
   };
 
-  const handleEditItem = async (planId: string, itemId: string, newText: string) => {
-    if (!newText.trim()) return;
-
-    try {
-      await updateItem(planId, itemId, { text: newText.trim() });
-      setShowEditModal(false);
-      setEditingItem(null);
-      showToast(t('plans.item_updated'));
-    } catch (error: any) {
-      console.error('Error editing item:', error);
-    }
-  };
 
   const handleDeletePlan = async (planId: string) => {
     const plan = plans.find(p => p.id === planId);
@@ -1435,101 +1424,108 @@ function App() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">{t('common.edit')}</label>
-                  <input
-                    type="text"
-                    defaultValue={editingItem.item.text}
-                    id="edit-item-input"
-                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-5 px-6 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all font-bold italic text-lg text-zinc-900 dark:text-white shadow-inner"
-                    autoFocus
-                  />
-                </div>
-
-                <div className="p-6 rounded-[28px] bg-[#0c0c0e] border border-zinc-800/50 space-y-6 shadow-2xl relative">
-                  <div className="flex items-center gap-2 mb-2 ml-1">
-                    <MapPin className="w-3.5 h-3.5 text-zinc-500" />
-                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
-                      {t('profile.gps_reminder')}
-                    </label>
-                  </div>
-
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (permissionStatus !== 'granted') {
-                          showToast('GPS-behörighet krävs');
-                          return;
-                        }
-                        const location = await getCurrentLocation();
-                        if (location) {
-                          const newLocation = {
-                            latitude: location.coords.latitude,
-                            longitude: location.coords.longitude,
-                            name: t('profile.current_location_name'),
-                            radius: 100,
-                            active: true
-                          };
-                          await updateItem(editingItem.planId, editingItem.item.id, { location: newLocation });
-                          setEditingItem({
-                            ...editingItem,
-                            item: { ...editingItem.item, location: newLocation }
-                          });
-                          showToast(t('profile.location_selected_toast', { type: t('profile.current_location_name') }));
-                        }
-                      }}
-                      className="w-full py-5 px-6 bg-[#18181b] border border-zinc-800/80 rounded-[20px] text-xs font-bold text-zinc-300 hover:border-emerald-500/30 hover:bg-[#1d1d21] transition-all flex items-center justify-center gap-3 shadow-lg"
-                    >
-                      <MapPin className="w-4 h-4 text-emerald-500/50" />
-                      {t('profile.use_current_location')}
-                    </button>
-
-                    <div className="space-y-3">
-                      {/* Manual Search */}
-                      <div className="relative">
-                        <AddressAutocomplete
-                          placeholder={t('profile.search_address_placeholder')}
-                          onSelect={async (location) => {
-                            const newLocation = {
-                              latitude: location.latitude,
-                              longitude: location.longitude,
-                              name: location.name,
-                              radius: 100,
-                              active: true
-                            };
-                            await updateItem(editingItem.planId, editingItem.item.id, { location: newLocation });
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                      <label className="cursor-pointer text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 transition-colors bg-zinc-50 dark:bg-zinc-950 p-2 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <Camera className="w-5 h-5" />
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setItemFile(file);
+                        }} />
+                      </label>
+                      {itemFile ? (
+                        <div className="relative ml-1">
+                          <img src={URL.createObjectURL(itemFile)} className="w-8 h-8 rounded-lg border border-emerald-500 object-cover" alt="" />
+                          <button type="button" onClick={() => setItemFile(null)} className="absolute -top-1 -right-1 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-full border border-zinc-200 dark:border-zinc-800">
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ) : editingItem.item.imageUrl && (
+                        <div className="relative ml-1">
+                          <img src={editingItem.item.imageUrl} className="w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-800 object-cover" alt="" />
+                          <button type="button" onClick={async () => {
+                            await updateItem(editingItem.planId, editingItem.item.id, { imageUrl: undefined });
                             setEditingItem({
                               ...editingItem,
-                              item: { ...editingItem.item, location: newLocation }
+                              item: { ...editingItem.item, imageUrl: undefined }
                             });
-                            showToast(t('profile.location_selected_toast', { type: location.name }));
-                          }}
-                        />
-                      </div>
+                          }} className="absolute -top-1 -right-1 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white rounded-full border border-zinc-200 dark:border-zinc-800">
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="text"
+                      defaultValue={editingItem.item.text}
+                      id="edit-item-input"
+                      className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-5 pl-14 pr-32 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all font-bold italic text-lg text-zinc-900 dark:text-white shadow-inner"
+                      autoFocus
+                    />
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowEditGps(!showEditGps)}
+                        className={`p-2 rounded-xl border transition-all ${editingItem.item.location || showEditGps ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'text-zinc-500 dark:text-zinc-600 hover:text-emerald-500 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800'}`}
+                      >
+                        <MapPin className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          const input = document.getElementById('edit-item-input') as HTMLInputElement;
+                          if (input && input.value.trim()) {
+                            let imageUrl = editingItem.item.imageUrl;
+                            if (itemFile) {
+                              imageUrl = await compressAndToBase64(itemFile);
+                            }
+                            await updateItem(editingItem.planId, editingItem.item.id, {
+                              text: input.value.trim(),
+                              imageUrl
+                            });
+                            setShowEditModal(false);
+                            setEditingItem(null);
+                            setItemFile(null);
+                            showToast(t('plans.item_updated'));
+                          }
+                        }}
+                        className="p-2.5 bg-emerald-500 text-black rounded-xl transition-all hover:scale-110 active:scale-95 shadow-lg shadow-emerald-500/20"
+                      >
+                        <Plus className="w-5 h-5 stroke-[4px]" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-                      {/* Favorites Section */}
-                      <div className="grid grid-cols-2 gap-3">
-                        {([
-                          { id: 'home', label: t('profile.home_place'), icon: '🏠' },
-                          { id: 'work', label: t('profile.work_place'), icon: '💼' },
-                          { id: 'fav1', label: t('profile.fav1_place'), icon: '✨' },
-                          { id: 'fav2', label: t('profile.fav2_place'), icon: '🔥' }
-                        ] as const).map((place) => {
-                          const loc = (userProfile?.savedLocations as any)?.[place.id];
-                          const customName = (userProfile?.savedLocations as any)?.customLabels?.[place.id];
+                <AnimatePresence>
+                  {showEditGps && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 rounded-[28px] bg-[#0c0c0e] border border-zinc-800/50 space-y-6 shadow-2xl relative">
+                        <div className="flex items-center gap-2 mb-2 ml-1">
+                          <MapPin className="w-3.5 h-3.5 text-zinc-500" />
+                          <label className="text-[10px] font-black text-zinc-400 uppercase tracking-[0.2em]">
+                            {t('profile.gps_reminder')}
+                          </label>
+                        </div>
 
-                          return (
-                            <button
-                              key={place.id}
-                              type="button"
-                              onClick={async () => {
-                                if (!loc) {
-                                  showToast(`${customName || place.label}: ${t('profile.no_place_saved')}`);
-                                  return;
-                                }
+                        <div className="space-y-4">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (permissionStatus !== 'granted') {
+                                showToast('GPS-behörighet krävs');
+                                return;
+                              }
+                              const location = await getCurrentLocation();
+                              if (location) {
                                 const newLocation = {
-                                  latitude: loc.latitude,
-                                  longitude: loc.longitude,
-                                  name: customName || place.label,
+                                  latitude: location.coords.latitude,
+                                  longitude: location.coords.longitude,
+                                  name: t('profile.current_location_name'),
                                   radius: 100,
                                   active: true
                                 };
@@ -1538,64 +1534,120 @@ function App() {
                                   ...editingItem,
                                   item: { ...editingItem.item, location: newLocation }
                                 });
-                                showToast(t('profile.location_selected_toast', { type: customName || place.label }));
-                              }}
-                              className={`py-4 px-4 bg-[#18181b]/50 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/fav ${loc ? 'border-zinc-800/50 text-zinc-500 hover:border-emerald-500/20 hover:text-emerald-500' : 'border-zinc-800/20 text-zinc-700/50 opacity-50 cursor-not-allowed'}`}
-                            >
-                              <span className="text-sm opacity-50 group-hover/fav:opacity-100 transition-opacity">{place.icon}</span>
-                              <span className="truncate">{customName || place.label}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                                showToast(t('profile.location_selected_toast', { type: t('profile.current_location_name') }));
+                              }
+                            }}
+                            className="w-full py-5 px-6 bg-[#18181b] border border-zinc-800/80 rounded-[20px] text-xs font-bold text-zinc-300 hover:border-emerald-500/30 hover:bg-[#1d1d21] transition-all flex items-center justify-center gap-3 shadow-lg"
+                          >
+                            <MapPin className="w-4 h-4 text-emerald-500/50" />
+                            {t('profile.use_current_location')}
+                          </button>
 
-                    <p className="text-[10px] text-zinc-600 italic font-medium ml-1">
-                      {t('profile.gps_radius_text')}
-                    </p>
+                          <div className="space-y-3">
+                            {/* Manual Search */}
+                            <div className="relative">
+                              <AddressAutocomplete
+                                placeholder={t('profile.search_address_placeholder')}
+                                onSelect={async (location) => {
+                                  const newLocation = {
+                                    latitude: location.latitude,
+                                    longitude: location.longitude,
+                                    name: location.name,
+                                    radius: 100,
+                                    active: true
+                                  };
+                                  await updateItem(editingItem.planId, editingItem.item.id, { location: newLocation });
+                                  setEditingItem({
+                                    ...editingItem,
+                                    item: { ...editingItem.item, location: newLocation }
+                                  });
+                                  showToast(t('profile.location_selected_toast', { type: location.name }));
+                                }}
+                              />
+                            </div>
 
-                    {editingItem.item.location && (
-                      <div className="pt-2 flex items-center justify-between border-t border-zinc-800/30">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                          <span className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-wider">{editingItem.item.location.name}</span>
+                            {/* Favorites Section */}
+                            <div className="grid grid-cols-2 gap-3">
+                              {([
+                                { id: 'home', label: t('profile.home_place'), icon: '🏠' },
+                                { id: 'work', label: t('profile.work_place'), icon: '💼' },
+                                { id: 'fav1', label: t('profile.fav1_place'), icon: '✨' },
+                                { id: 'fav2', label: t('profile.fav2_place'), icon: '🔥' }
+                              ] as const).map((place) => {
+                                const loc = (userProfile?.savedLocations as any)?.[place.id];
+                                const customName = (userProfile?.savedLocations as any)?.customLabels?.[place.id];
+
+                                return (
+                                  <button
+                                    key={place.id}
+                                    type="button"
+                                    onClick={async () => {
+                                      if (!loc) {
+                                        showToast(`${customName || place.label}: ${t('profile.no_place_saved')}`);
+                                        return;
+                                      }
+                                      const newLocation = {
+                                        latitude: loc.latitude,
+                                        longitude: loc.longitude,
+                                        name: customName || place.label,
+                                        radius: 100,
+                                        active: true
+                                      };
+                                      await updateItem(editingItem.planId, editingItem.item.id, { location: newLocation });
+                                      setEditingItem({
+                                        ...editingItem,
+                                        item: { ...editingItem.item, location: newLocation }
+                                      });
+                                      showToast(t('profile.location_selected_toast', { type: customName || place.label }));
+                                    }}
+                                    className={`py-4 px-4 bg-[#18181b]/50 border rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 group/fav ${loc ? 'border-zinc-800/50 text-zinc-500 hover:border-emerald-500/20 hover:text-emerald-500' : 'border-zinc-800/20 text-zinc-700/50 opacity-50 cursor-not-allowed'}`}
+                                  >
+                                    <span className="text-sm opacity-50 group-hover/fav:opacity-100 transition-opacity">{place.icon}</span>
+                                    <span className="truncate">{customName || place.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <p className="text-[10px] text-zinc-600 italic font-medium ml-1">
+                            {t('profile.gps_radius_text')}
+                          </p>
+
+                          {editingItem.item.location && (
+                            <div className="pt-2 flex items-center justify-between border-t border-zinc-800/30">
+                              <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-wider">{editingItem.item.location.name}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  await updateItem(editingItem.planId, editingItem.item.id, { location: undefined });
+                                  setEditingItem({
+                                    ...editingItem,
+                                    item: { ...editingItem.item, location: undefined }
+                                  });
+                                  showToast(t('profile.remove_location'));
+                                }}
+                                className="text-[9px] font-black text-red-500/60 hover:text-red-500 uppercase tracking-[0.2em] transition-colors"
+                              >
+                                {t('profile.remove_location')}
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            await updateItem(editingItem.planId, editingItem.item.id, { location: undefined });
-                            setEditingItem({
-                              ...editingItem,
-                              item: { ...editingItem.item, location: undefined }
-                            });
-                            showToast(t('profile.remove_location'));
-                          }}
-                          className="text-[9px] font-black text-red-500/60 hover:text-red-500 uppercase tracking-[0.2em] transition-colors"
-                        >
-                          {t('profile.remove_location')}
-                        </button>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-                <div className="pt-6 flex gap-3">
+                <div className="pt-6">
                   <button
-                    onClick={() => { setShowEditModal(false); setEditingItem(null); }}
-                    className="flex-1 py-5 bg-[#27272a] text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#323236] transition-all"
+                    onClick={() => { setShowEditModal(false); setEditingItem(null); setItemFile(null); }}
+                    className="w-full py-5 bg-[#27272a] text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-[#323236] transition-all"
                   >
                     {t('common.cancel')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      const input = document.getElementById('edit-item-input') as HTMLInputElement;
-                      if (input && input.value.trim()) {
-                        handleEditItem(editingItem.planId, editingItem.item.id, input.value.trim());
-                      }
-                    }}
-                    className="flex-[1.5] py-5 bg-emerald-500 text-black rounded-2xl text-sm font-black uppercase tracking-widest transition hover:bg-emerald-400 shadow-xl shadow-emerald-500/20"
-                  >
-                    {t('common.save')}
                   </button>
                 </div>
               </div>
