@@ -48,12 +48,18 @@
         "no_friends": "Henüz arkadaş yok. Güvenilir yardımcılarınızı arayın!",
         "accept": "Kabul Et",
         "decline": "Reddet",
-        "remove": "Kaldır"
+        "remove": "Kaldır",
+        "add": "Ekle"
     },
     "auth": {
         "login": "Giriş Yap",
         "login_subtitle": "Arkadaşlarınla birlikte plan yapmaya ve bir şeyler başarmaya başla.",
         "continue_google": "Google ile Devam Et",
+        "login_email": "E-posta ile Giriş Yap",
+        "email": "E-posta",
+        "password": "Şifre",
+        "email_placeholder": "eposta@ornek.com",
+        "password_placeholder": "Şifreniz",
         "logout": "Çıkış Yap"
     },
     "home": {

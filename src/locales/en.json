@@ -48,7 +48,8 @@
         "no_friends": "No friends yet. Search for your trusted helpers!",
         "accept": "Accept",
         "decline": "Decline",
-        "remove": "Remove"
+        "remove": "Remove",
+        "add": "Add"
     },
     "auth": {
         "login": "Log in",

@@ -16,6 +16,17 @@ import {
 import { db } from '../lib/firebase';
 import type { FriendRequest, UserProfile } from '../types';
 import { sendAppNotification } from '../lib/notifications';
+import {
+    isDemoMode,
+    getDemoFriends,
+    getDemoFriendRequests,
+    subscribeDemoFriends,
+    searchDemoUserByEmail,
+    sendDemoFriendRequest,
+    acceptDemoFriendRequest,
+    declineDemoFriendRequest,
+    removeDemoFriend,
+} from '../lib/demoMode';
 
 function getFriendshipId(a: string, b: string) {
     return [a, b].sort().join('_');
@@ -41,6 +52,15 @@ export function useFriends(userId: string | undefined) {
             setFriends([]);
             setLoading(false);
             return;
+        }
+
+        if (isDemoMode()) {
+            const sync = () => {
+                setFriends(getDemoFriends());
+                setLoading(false);
+            };
+            sync();
+            return subscribeDemoFriends(sync);
         }
 
         const migrateLegacyFriends = async () => {
@@ -111,6 +131,17 @@ export function useFriendRequests(userId: string | undefined) {
             return;
         }
 
+        if (isDemoMode()) {
+            const sync = () => {
+                const all = getDemoFriendRequests();
+                setIncomingRequests(all.filter((r) => r.to === userId && r.status === 'pending'));
+                setOutgoingRequests(all.filter((r) => r.from === userId && r.status === 'pending'));
+                setLoading(false);
+            };
+            sync();
+            return subscribeDemoFriends(sync);
+        }
+
         // Listen to incoming requests
         const incomingQuery = query(
             collection(db, 'friendRequests'),
@@ -152,6 +183,9 @@ export function useFriendRequests(userId: string | undefined) {
 }
 
 export async function searchUserByEmail(email: string): Promise<UserProfile | null> {
+    if (isDemoMode()) {
+        return searchDemoUserByEmail(email);
+    }
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('email', '==', email.toLowerCase()));
     const snapshot = await getDocs(q);
@@ -165,6 +199,11 @@ export async function sendFriendRequest(
     fromUser: UserProfile,
     toUser: UserProfile
 ): Promise<void> {
+    if (isDemoMode()) {
+        sendDemoFriendRequest(fromUser, toUser);
+        return;
+    }
+
     const friendshipId = getFriendshipId(fromUser.uid, toUser.uid);
     const existingFriendship = await getDoc(doc(db, 'friendships', friendshipId));
     if (existingFriendship.exists()) {
@@ -206,6 +245,11 @@ export async function sendFriendRequest(
 }
 
 export async function acceptFriendRequest(requestId: string): Promise<void> {
+    if (isDemoMode()) {
+        acceptDemoFriendRequest(requestId);
+        return;
+    }
+
     const requestRef = doc(db, 'friendRequests', requestId);
     const requestSnap = await getDoc(requestRef);
 
@@ -230,6 +274,10 @@ export async function acceptFriendRequest(requestId: string): Promise<void> {
 }
 
 export async function declineFriendRequest(requestId: string): Promise<void> {
+    if (isDemoMode()) {
+        declineDemoFriendRequest(requestId);
+        return;
+    }
     const requestRef = doc(db, 'friendRequests', requestId);
     await updateDoc(requestRef, {
         status: 'declined',
@@ -237,6 +285,10 @@ export async function declineFriendRequest(requestId: string): Promise<void> {
 }
 
 export async function removeFriend(userId: string, friendId: string): Promise<void> {
+    if (isDemoMode()) {
+        removeDemoFriend(friendId);
+        return;
+    }
     const friendshipId = getFriendshipId(userId, friendId);
     await deleteDoc(doc(db, 'friendships', friendshipId));
 }

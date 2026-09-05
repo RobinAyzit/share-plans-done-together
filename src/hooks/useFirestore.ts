@@ -16,6 +16,17 @@ import {
 import { db } from '../lib/firebase';
 import type { Plan, PlanMember, Item } from '../types';
 import { sendAppNotification } from '../lib/notifications';
+import {
+    isDemoMode,
+    getDemoPlans,
+    subscribeDemoPlans,
+    createDemoPlan,
+    updateDemoPlan,
+    deleteDemoPlan,
+    getDemoPlan,
+    addDemoItem,
+    updateDemoItems,
+} from '../lib/demoMode';
 
 export function usePlans(userId: string | undefined) {
     const [plans, setPlans] = useState<Plan[]>([]);
@@ -27,6 +38,22 @@ export function usePlans(userId: string | undefined) {
             setPlans([]);
             setLoading(false);
             return;
+        }
+
+        if (isDemoMode()) {
+            const sync = () => {
+                setPlans(
+                    getDemoPlans().sort((a, b) => {
+                        const timeA = a.created?.toMillis?.() || 0;
+                        const timeB = b.created?.toMillis?.() || 0;
+                        return timeB - timeA;
+                    })
+                );
+                setLoading(false);
+                setError(null);
+            };
+            sync();
+            return subscribeDemoPlans(sync);
         }
 
         const plansRef = collection(db, 'plans');
@@ -78,6 +105,16 @@ export function usePlan(planId: string | null) {
             return;
         }
 
+        if (isDemoMode()) {
+            const sync = () => {
+                setPlan(getDemoPlan(planId));
+                setLoading(false);
+                setError(null);
+            };
+            sync();
+            return subscribeDemoPlans(sync);
+        }
+
         const planRef = doc(db, 'plans', planId);
 
         const unsubscribe = onSnapshot(
@@ -119,6 +156,10 @@ export async function createPlan(
     userPhoto?: string,
     imageUrl?: string
 ): Promise<string> {
+    if (isDemoMode()) {
+        return createDemoPlan(name, userId, userEmail, userName, userPhoto, imageUrl);
+    }
+
     const plansRef = collection(db, 'plans');
     const ownerMember: PlanMember = {
         uid: userId,
@@ -147,6 +188,11 @@ export async function createPlan(
 }
 
 export async function updatePlan(planId: string, updates: Partial<Plan>) {
+    if (isDemoMode()) {
+        updateDemoPlan(planId, updates);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
 
     // If we are reopening a plan, clear the completedAt timestamp
@@ -162,11 +208,20 @@ export async function updatePlan(planId: string, updates: Partial<Plan>) {
 }
 
 export async function deletePlan(planId: string) {
+    if (isDemoMode()) {
+        deleteDemoPlan(planId);
+        return;
+    }
     const planRef = doc(db, 'plans', planId);
     await deleteDoc(planRef);
 }
 
 export async function addItemToPlan(planId: string, text: string, userId: string, userName: string, imageUrl?: string, location?: Item['location']): Promise<void> {
+    if (isDemoMode()) {
+        addDemoItem(planId, text, imageUrl, location);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
     const newItem: Item = {
         id: crypto.randomUUID(),
@@ -195,6 +250,17 @@ export async function addItemToPlan(planId: string, text: string, userId: string
 }
 
 export async function updateItem(planId: string, itemId: string, updates: Partial<Item>): Promise<void> {
+    if (isDemoMode()) {
+        const plan = getDemoPlan(planId);
+        if (!plan) return;
+        const updatedItems = plan.items.map((item) =>
+            item.id === itemId ? { ...item, ...updates } : item
+        );
+        const allChecked = updatedItems.length > 0 && updatedItems.every((i) => i.checked);
+        updateDemoItems(planId, updatedItems, allChecked);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
     const planSnap = await getDoc(planRef);
 
@@ -223,6 +289,15 @@ export async function updateItem(planId: string, itemId: string, updates: Partia
 }
 
 export async function deleteItem(planId: string, itemId: string): Promise<void> {
+    if (isDemoMode()) {
+        const plan = getDemoPlan(planId);
+        if (!plan) return;
+        const updatedItems = plan.items.filter((item) => item.id !== itemId);
+        const allChecked = updatedItems.length > 0 && updatedItems.every((i) => i.checked);
+        updateDemoItems(planId, updatedItems, allChecked);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
     const planSnap = await getDoc(planRef);
 
@@ -252,6 +327,28 @@ export async function toggleItemChecked(
     userId: string,
     displayName: string
 ): Promise<void> {
+    if (isDemoMode()) {
+        const plan = getDemoPlan(planId);
+        if (!plan) return;
+        const item = plan.items.find(i => i.id === itemId);
+        if (!item) return;
+        const updatedItems = plan.items.map((i) => {
+            if (i.id === itemId) {
+                const newChecked = !i.checked;
+                return {
+                    ...i,
+                    checked: newChecked,
+                    checkedBy: newChecked ? displayName : undefined,
+                    checkedByUid: newChecked ? userId : undefined,
+                };
+            }
+            return i;
+        });
+        const allChecked = updatedItems.length > 0 && updatedItems.every((i) => i.checked);
+        updateDemoItems(planId, updatedItems, allChecked);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
     const planSnap = await getDoc(planRef);
 
@@ -374,6 +471,23 @@ export async function toggleReaction(
     userName: string,
     emoji: string
 ): Promise<void> {
+    if (isDemoMode()) {
+        const plan = getDemoPlan(planId);
+        if (!plan) return;
+        const item = plan.items.find(i => i.id === itemId);
+        if (!item) return;
+        const reactions = item.reactions || [];
+        const existingIndex = reactions.findIndex(r => r.userId === userId && r.emoji === emoji);
+        const updatedReactions = existingIndex > -1
+            ? reactions.filter((_, i) => i !== existingIndex)
+            : [...reactions, { userId, userName, emoji }];
+        const updatedItems = plan.items.map(i =>
+            i.id === itemId ? { ...i, reactions: updatedReactions } : i
+        );
+        updateDemoItems(planId, updatedItems, plan.completed);
+        return;
+    }
+
     const planRef = doc(db, 'plans', planId);
     const planSnap = await getDoc(planRef);
 

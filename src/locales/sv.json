@@ -48,7 +48,8 @@
         "no_friends": "Inga vänner än. Sök efter dina betrodda medhjälpare!",
         "accept": "Acceptera",
         "decline": "Avvisa",
-        "remove": "Ta bort"
+        "remove": "Ta bort",
+        "add": "Lägg till"
     },
     "auth": {
         "login": "Logga in",

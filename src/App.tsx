@@ -55,7 +55,7 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
-  const { user, userProfile, loading: authLoading, error: authError, signInWithGoogle, signOut, isAuthenticated } = useAuth();
+  const { user, userProfile, loading: authLoading, error: authError, signInWithGoogle, signInWithEmail, signInAsTestUser, signOut, isAuthenticated } = useAuth();
   const { plans } = usePlans(user?.uid);
   const { friends } = useFriends(user?.uid);
   const { update: appUpdate, dismiss: dismissAppUpdate, openDownload: openAppUpdate, downloading: appUpdateDownloading, downloadError: appUpdateDownloadError } = useAppUpdate();
@@ -620,7 +620,7 @@ function App() {
                           </div>
                           <div>
                             <div className="font-bold text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-950 dark:group-hover:text-white uppercase italic tracking-tight transition-colors">{plan.name}</div>
-                            <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{plan.items?.filter(i => i.checked).length || 0}/{plan.items?.length || 0} {t('plans.completed_label')}</div>
+                            <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{t('plans.step_of', { current: plan.items?.filter(i => i.checked).length || 0, total: plan.items?.length || 0 })}</div>
                           </div>
                         </div>
                         {plan.ownerId === user?.uid && (
@@ -1448,9 +1448,6 @@ function App() {
 
       {/* Navigation Bar */}
       <footer className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-zinc-950/80 border-t border-zinc-200 dark:border-zinc-800/50 backdrop-blur-xl pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.03)] dark:shadow-none">
-        <p className="text-center text-[9px] font-medium tracking-wide text-zinc-400 dark:text-zinc-600 pt-1.5">
-          {t('update.version_label', { version: APP_VERSION })}
-        </p>
         <div className="max-w-3xl mx-auto px-10 h-20 flex items-center justify-between">
           <button
             onClick={() => setActiveTab('home')}
@@ -1517,6 +1514,8 @@ function App() {
             key="auth-modal"
             onClose={() => setShowAuthModal(false)}
             onSignIn={signInWithGoogle}
+            onEmailSignIn={signInWithEmail}
+            onTestSignIn={signInAsTestUser}
             error={authError || undefined}
           />
         )}
@@ -1532,11 +1531,18 @@ function App() {
 
               <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-8 text-zinc-900 dark:text-white">{t('home.create_plan')}</h2>
 
-              <div className="space-y-6">
+              <form
+                className="space-y-6"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void createNewPlan();
+                }}
+              >
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest ml-1">{t('plans.plan_name_label')}</label>
                   <input
                     type="text"
+                    name="planName"
                     value={newPlanName}
                     onChange={(e) => setNewPlanName(e.target.value)}
                     placeholder={t('plans.plan_name_placeholder')}
@@ -1574,16 +1580,16 @@ function App() {
                 </div>
 
                 <div className="pt-6 flex gap-3">
-                  <button onClick={() => setShowCreateModal(false)} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">{t('common.cancel')}</button>
+                  <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-zinc-200 dark:hover:bg-zinc-700 transition">{t('common.cancel')}</button>
                   <button
-                    onClick={createNewPlan}
+                    type="submit"
                     disabled={!newPlanName.trim() || creatingPlan}
                     className="flex-[1.5] py-5 bg-emerald-500 text-black rounded-2xl text-sm font-black uppercase tracking-widest disabled:opacity-30 transition hover:bg-emerald-400 shadow-xl shadow-emerald-500/20"
                   >
                     {creatingPlan ? t('common.loading') : t('home.create_plan')}
                   </button>
                 </div>
-              </div>
+              </form>
             </motion.div>
           </div>
         )}

@@ -202,7 +202,7 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
                                         onClick={() => handleSendRequest(searchResult)}
                                         className="px-6 py-3 rounded-xl bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-emerald-500/20"
                                     >
-                                        {t('friends.remove').replace('Ta bort', 'Lägg till').replace('Remove', 'Add').replace('Kaldır', 'Ekle')}
+                                        {t('friends.add')}
                                     </button>
                                 )}
                             </motion.div>
@@ -221,9 +221,9 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
                                         key={request.id}
                                         initial={{ opacity: 0, x: -10 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        className="p-5 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between"
+                                        className="p-5 rounded-3xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-between gap-3"
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 min-w-0">
                                             {request.fromPhoto ? (
                                                 <img src={request.fromPhoto} alt="" className="w-12 h-12 rounded-2xl object-cover border border-white dark:border-zinc-800 shadow-sm" />
                                             ) : (
@@ -231,26 +231,28 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
                                                     {request.fromName[0].toUpperCase()}
                                                 </div>
                                             )}
-                                            <div>
-                                                <div className="font-black italic text-zinc-900 dark:text-white uppercase tracking-tight">{request.fromName}</div>
-                                                <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{request.fromEmail}</div>
+                                            <div className="min-w-0">
+                                                <div className="font-black italic text-zinc-900 dark:text-white uppercase tracking-tight truncate">{request.fromName}</div>
+                                                <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase truncate">{request.fromEmail}</div>
                                             </div>
                                         </div>
 
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 shrink-0">
                                             <button
+                                                type="button"
                                                 onClick={() => handleAcceptRequest(request.id)}
-                                                className="p-3 rounded-xl bg-emerald-500 text-black hover:scale-110 active:scale-90 transition-all shadow-lg shadow-emerald-500/20"
-                                                title={t('friends.accept')}
+                                                className="px-4 py-2.5 rounded-xl bg-emerald-500 text-black text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-1.5"
                                             >
-                                                <Check className="w-5 h-5 stroke-[3px]" />
+                                                <Check className="w-4 h-4 stroke-[3px]" />
+                                                {t('friends.accept')}
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => handleDeclineRequest(request.id)}
-                                                className="p-3 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-400 hover:text-red-500 hover:border-red-500/30 transition-all shadow-sm"
-                                                title={t('friends.decline')}
+                                                className="px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-red-500 hover:border-red-500/30 transition-all shadow-sm flex items-center gap-1.5"
                                             >
-                                                <XCircle className="w-5 h-5 stroke-[2.5px]" />
+                                                <XCircle className="w-4 h-4 stroke-[2.5px]" />
+                                                {t('friends.decline')}
                                             </button>
                                         </div>
                                     </motion.div>
@@ -275,9 +277,9 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
                                 {friends.map((friend) => (
                                     <div
                                         key={friend.uid}
-                                        className="p-5 rounded-3xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 flex items-center justify-between group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
+                                        className="p-5 rounded-3xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-3 group hover:border-zinc-300 dark:hover:border-zinc-700 transition-all"
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 min-w-0">
                                             {friend.photoURL ? (
                                                 <img src={friend.photoURL} alt="" className="w-12 h-12 rounded-2xl object-cover border border-white dark:border-zinc-800 shadow-sm transition-transform group-hover:scale-110" />
                                             ) : (
@@ -285,15 +287,16 @@ export function FriendsModal({ onClose, currentUser }: FriendsModalProps) {
                                                     {friend.displayName[0].toUpperCase()}
                                                 </div>
                                             )}
-                                            <div>
-                                                <div className="font-black italic text-zinc-900 dark:text-white uppercase tracking-tight">{friend.displayName}</div>
-                                                <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase">{friend.email}</div>
+                                            <div className="min-w-0">
+                                                <div className="font-black italic text-zinc-900 dark:text-white uppercase tracking-tight truncate">{friend.displayName}</div>
+                                                <div className="text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase truncate">{friend.email}</div>
                                             </div>
                                         </div>
 
                                         <button
+                                            type="button"
                                             onClick={() => handleRemoveFriend(friend.uid)}
-                                            className="opacity-0 group-hover:opacity-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/5 transition-all"
+                                            className="shrink-0 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/5 border border-transparent hover:border-red-500/20 transition-all"
                                         >
                                             {t('friends.remove')}
                                         </button>

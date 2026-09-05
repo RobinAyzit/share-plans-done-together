@@ -42,3 +42,5 @@ FireBase/
 # android/app/google-services.json
 "DoneTogether.zip"  
 "DoneTogether3.code-workspace" 
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
