@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy } from 'lucide-react';
+import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy, Shield } from 'lucide-react';
 import { compressAndToBase64 } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import {
@@ -27,6 +27,7 @@ import { ShareModal } from './components/ShareModal';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UpdateModal } from './components/UpdateModal';
+import { AdminDashboard } from './components/AdminDashboard';
 import { useAppUpdate } from './hooks/useAppUpdate';
 import { APP_VERSION } from './config/appVersion';
 import type { Plan, Item } from './types';
@@ -38,6 +39,8 @@ import { LocationPicker, formatRadius } from './components/LocationPicker';
 import { reverseGeocodeDetailed } from './lib/geocoding';
 import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from './lib/firebase';
+import { isAdminEmail } from './lib/admin';
+import { usePresence } from './hooks/usePresence';
 
 const EMOJIS = ['❤️', '🔥', '💪', '🙏', '😂', '💯']; // Reactions supported by the app
 
@@ -55,10 +58,13 @@ function App() {
       document.documentElement.classList.remove('dark');
     }
   }, [theme]);
-  const { user, userProfile, loading: authLoading, error: authError, signInWithGoogle, signInWithEmail, signInAsTestUser, signOut, isAuthenticated } = useAuth();
+  const { user, userProfile, loading: authLoading, error: authError, signInWithGoogle, signOut, isAuthenticated } = useAuth();
   const { plans } = usePlans(user?.uid);
   const { friends } = useFriends(user?.uid);
   const { update: appUpdate, dismiss: dismissAppUpdate, openDownload: openAppUpdate, downloading: appUpdateDownloading, downloadError: appUpdateDownloadError } = useAppUpdate();
+
+  // Silent background presence + install tracking (no UI impact)
+  usePresence(user?.uid);
 
   // Initialize location tracking
   const { permissionStatus, isTracking, getCurrentLocation, requestPermissions } = useLocation(user?.uid);
@@ -134,6 +140,8 @@ function App() {
   const [itemFilePreview, setItemFilePreview] = useState<string | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
+  const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const isAdmin = isAdminEmail(user?.email || userProfile?.email);
 
   // Invite handling state
   const [pendingInviteCode, setPendingInviteCode] = useState<string | null>(null);
@@ -1312,6 +1320,30 @@ function App() {
                     </div>
                   </div>
 
+                  {/* Admin insights — only for bynrnworld@gmail.com */}
+                  {isAdmin && (
+                    <div className="w-full mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminDashboard(true)}
+                        className="w-full group relative overflow-hidden p-5 rounded-[28px] text-left border border-emerald-500/25 bg-gradient-to-br from-zinc-900 to-zinc-950 text-white shadow-lg shadow-emerald-500/10 hover:border-emerald-400/40 transition-all"
+                      >
+                        <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-emerald-500/20 blur-2xl group-hover:bg-emerald-400/30 transition-colors" />
+                        <div className="relative flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/15 text-emerald-400">
+                            <Shield className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400/90 mb-1">Admin</p>
+                            <p className="text-sm font-bold tracking-tight">Användarinsikter</p>
+                            <p className="text-[11px] text-zinc-400 mt-0.5">Online · aktiva · installs</p>
+                          </div>
+                          <span className="text-emerald-400/80 text-xs font-semibold group-hover:translate-x-0.5 transition-transform">Öppna →</span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Buy Me A Coffee — compact on mobile */}
                   <div className="w-full mb-4">
                     <a
@@ -1514,8 +1546,6 @@ function App() {
             key="auth-modal"
             onClose={() => setShowAuthModal(false)}
             onSignIn={signInWithGoogle}
-            onEmailSignIn={signInWithEmail}
-            onTestSignIn={signInAsTestUser}
             error={authError || undefined}
           />
         )}
@@ -1596,6 +1626,14 @@ function App() {
 
         {showFriendsModal && userProfile && (
           <FriendsModal key="friends-modal" onClose={() => setShowFriendsModal(false)} currentUser={userProfile} />
+        )}
+
+        {isAdmin && (
+          <AdminDashboard
+            open={showAdminDashboard}
+            onClose={() => setShowAdminDashboard(false)}
+            email={user?.email || userProfile?.email}
+          />
         )}
 
         {showJoinModal && user && userProfile && (

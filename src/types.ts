@@ -58,6 +58,12 @@ export interface UserProfile {
     createdAt: Timestamp;
     fcmTokens?: string[];
     language?: string;
+    /** Silent presence heartbeat — updated in background, optional */
+    lastActiveAt?: Timestamp;
+    /** Last known client surface for admin insights */
+    clientPlatform?: 'android' | 'ios' | 'pwa' | 'web';
+    /** Unique device/browser install ids (arrayUnion) for admin install count */
+    installIds?: string[];
     savedLocations?: {
         home?: { latitude: number; longitude: number; address: string };
         work?: { latitude: number; longitude: number; address: string };

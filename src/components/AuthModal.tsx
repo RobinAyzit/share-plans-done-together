@@ -1,49 +1,16 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LogIn, X, Mail } from 'lucide-react';
+import { LogIn, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './LanguageSwitcher';
-// Temporary: keep true while TestSprite needs one-click login. Set false for production release.
-const ENABLE_TEST_LOGIN = true;
 
 interface AuthModalProps {
     onSignIn: () => void;
-    onEmailSignIn: (email: string, password: string) => Promise<void>;
-    onTestSignIn?: () => Promise<void>;
     onClose: () => void;
     error?: string | null;
 }
 
-export function AuthModal({ onSignIn, onEmailSignIn, onTestSignIn, onClose, error }: AuthModalProps) {
+export function AuthModal({ onSignIn, onClose, error }: AuthModalProps) {
     const { t } = useTranslation();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [submitting, setSubmitting] = useState(false);
-
-    const handleEmailSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email.trim() || !password || submitting) return;
-        try {
-            setSubmitting(true);
-            await onEmailSignIn(email, password);
-        } catch {
-            // Error is surfaced via auth hook
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleTestLogin = async () => {
-        if (!onTestSignIn || submitting) return;
-        try {
-            setSubmitting(true);
-            await onTestSignIn();
-        } catch {
-            // Error is surfaced via auth hook
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm px-6">
@@ -79,24 +46,12 @@ export function AuthModal({ onSignIn, onEmailSignIn, onTestSignIn, onClose, erro
                     </div>
                 )}
 
-                {ENABLE_TEST_LOGIN && onTestSignIn && (
-                    <button
-                        type="button"
-                        data-testid="test-login"
-                        onClick={handleTestLogin}
-                        disabled={submitting}
-                        className="w-full h-16 mb-4 rounded-2xl bg-emerald-500 text-black font-black italic uppercase tracking-widest flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-60"
-                    >
-                        Test Login
-                    </button>
-                )}
-
                 <button
                     onClick={async () => {
                         try {
                             await onSignIn();
-                        } catch (error) {
-                            console.error('Error in onSignIn:', error);
+                        } catch (err) {
+                            console.error('Error in onSignIn:', err);
                         }
                     }}
                     className="w-full h-16 rounded-2xl bg-zinc-950 dark:bg-white text-white dark:text-black font-black italic uppercase tracking-widest flex items-center justify-center gap-4 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-black/10"
@@ -121,46 +76,6 @@ export function AuthModal({ onSignIn, onEmailSignIn, onTestSignIn, onClose, erro
                     </svg>
                     {t('auth.continue_google')}
                 </button>
-
-                <div className="relative py-4">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-zinc-200 dark:border-zinc-800"></div>
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase font-bold italic tracking-widest">
-                        <span className="bg-white dark:bg-zinc-900 px-4 text-zinc-400">{t('common.or')}</span>
-                    </div>
-                </div>
-
-                <form onSubmit={handleEmailSubmit} className="space-y-3">
-                    <input
-                        type="email"
-                        name="email"
-                        autoComplete="username"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder={t('auth.email_placeholder')}
-                        required
-                        className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 text-sm font-medium text-zinc-900 dark:text-white outline-none focus:border-emerald-500"
-                    />
-                    <input
-                        type="password"
-                        name="password"
-                        autoComplete="current-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder={t('auth.password_placeholder')}
-                        required
-                        className="w-full h-12 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 px-4 text-sm font-medium text-zinc-900 dark:text-white outline-none focus:border-emerald-500"
-                    />
-                    <button
-                        type="submit"
-                        disabled={submitting}
-                        className="w-full h-14 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 font-black italic uppercase tracking-widest flex items-center justify-center gap-4 hover:border-emerald-500 transition-all disabled:opacity-60"
-                    >
-                        <Mail className="w-5 h-5" />
-                        {submitting ? '...' : t('auth.login_email')}
-                    </button>
-                </form>
             </motion.div>
         </div>
     );
