@@ -1,9 +1,10 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Activity,
     Download,
     Loader2,
+    MessageSquare,
     Radio,
     RefreshCw,
     Shield,
@@ -14,12 +15,18 @@ import {
     MonitorSmartphone,
 } from 'lucide-react';
 import { useAdminMetrics } from '../hooks/useAdminMetrics';
+import { useAdminInbox } from '../hooks/useAdminChat';
+import { ContactAdminModal } from './ContactAdminModal';
+import { isAdminEmail } from '../lib/admin';
 import type { ClientPlatform } from '../lib/clientPlatform';
+import type { UserProfile } from '../types';
+import type { AdminThread } from '../types/adminChat';
 
 interface AdminDashboardProps {
     open: boolean;
     onClose: () => void;
     email: string | null | undefined;
+    currentUser: UserProfile;
 }
 
 function formatRelative(ms: number | null): string {
@@ -138,21 +145,30 @@ function PlatformBars({
     );
 }
 
-export function AdminDashboard({ open, onClose, email }: AdminDashboardProps) {
-    const { metrics, loading, error, refresh, allowed } = useAdminMetrics(open, email);
+export function AdminDashboard({ open, onClose, email, currentUser }: AdminDashboardProps) {
+    const [tab, setTab] = useState<'insights' | 'inbox'>('insights');
+    const [activeThread, setActiveThread] = useState<(AdminThread & { id: string }) | null>(null);
+    const isAdmin = isAdminEmail(email);
+    const { metrics, loading, error, refresh } = useAdminMetrics(open && tab === 'insights' && isAdmin, email);
+    const { threads, loading: inboxLoading, error: inboxError, unreadCount } = useAdminInbox(email, open && isAdmin);
 
     useEffect(() => {
-        if (!open) return;
+        if (!open) {
+            setActiveThread(null);
+            setTab('insights');
+            return;
+        }
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key === 'Escape' && !activeThread) onClose();
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
-    }, [open, onClose]);
+    }, [open, onClose, activeThread]);
 
-    if (!allowed) return null;
+    if (!isAdmin) return null;
 
     return (
+        <>
         <AnimatePresence>
             {open && (
                 <motion.div
@@ -178,7 +194,6 @@ export function AdminDashboard({ open, onClose, email }: AdminDashboardProps) {
                         transition={{ type: 'spring', damping: 28, stiffness: 320 }}
                         className="relative z-10 flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-[28px] border border-white/10 bg-[#0b0f14] shadow-2xl shadow-black/50 sm:rounded-[28px]"
                     >
-                        {/* Header */}
                         <div className="relative border-b border-white/10 px-5 pb-4 pt-5 sm:px-7 sm:pt-6">
                             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(16,185,129,0.18),_transparent_55%)]" />
                             <div className="relative flex items-start justify-between gap-4">
@@ -188,29 +203,31 @@ export function AdminDashboard({ open, onClose, email }: AdminDashboardProps) {
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-400/90">
-                                            Admin · privat
+                                            Admin privat
                                         </p>
                                         <h2
                                             id="admin-dashboard-title"
                                             className="mt-1 text-xl font-semibold tracking-tight text-white sm:text-2xl"
                                         >
-                                            Användarinsikter
+                                            Adminpanel
                                         </h2>
                                         <p className="mt-1 text-xs text-zinc-500 sm:text-sm">
-                                            Endast synligt för dig · påverkar inte andra konton
+                                            Statistik och meddelanden från användare
                                         </p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => void refresh()}
-                                        disabled={loading}
-                                        className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 transition hover:bg-white/10 disabled:opacity-50"
-                                        title="Uppdatera"
-                                    >
-                                        <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                                    </button>
+                                    {tab === 'insights' && (
+                                        <button
+                                            type="button"
+                                            onClick={() => void refresh()}
+                                            disabled={loading}
+                                            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-zinc-300 transition hover:bg-white/10 disabled:opacity-50"
+                                            title="Uppdatera"
+                                        >
+                                            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                                        </button>
+                                    )}
                                     <button
                                         type="button"
                                         onClick={onClose}
@@ -220,118 +237,221 @@ export function AdminDashboard({ open, onClose, email }: AdminDashboardProps) {
                                     </button>
                                 </div>
                             </div>
+
+                            <div className="relative mt-4 flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setTab('insights')}
+                                    className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+                                        tab === 'insights'
+                                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                            : 'bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10'
+                                    }`}
+                                >
+                                    Insikter
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTab('inbox')}
+                                    className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+                                        tab === 'inbox'
+                                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                            : 'bg-white/5 text-zinc-400 border border-white/10 hover:bg-white/10'
+                                    }`}
+                                >
+                                    Meddelanden
+                                    {unreadCount > 0 && (
+                                        <span className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-emerald-500 px-1.5 py-0.5 text-[10px] font-bold text-black">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Body */}
                         <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
-                            {error && (
-                                <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                                    {error}
-                                </div>
+                            {tab === 'insights' && (
+                                <>
+                                    {error && (
+                                        <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                                            {error}
+                                        </div>
+                                    )}
+
+                                    {loading && !metrics ? (
+                                        <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-400">
+                                            <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+                                            <p className="text-sm">Hämtar live-statistik…</p>
+                                        </div>
+                                    ) : metrics ? (
+                                        <div className="space-y-5">
+                                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                                <MetricCard
+                                                    label="Totalt"
+                                                    value={metrics.totalUsers}
+                                                    hint="Registrerade konton"
+                                                    icon={<Users className="h-4 w-4" />}
+                                                    accent="bg-emerald-500"
+                                                />
+                                                <MetricCard
+                                                    label="Online"
+                                                    value={metrics.onlineNow}
+                                                    hint="Aktiva senaste 5 min"
+                                                    icon={<Radio className="h-4 w-4" />}
+                                                    accent="bg-teal-400"
+                                                    pulse={metrics.onlineNow > 0}
+                                                />
+                                                <MetricCard
+                                                    label="24 timmar"
+                                                    value={metrics.active24h}
+                                                    hint="Aktiva senaste dygnet"
+                                                    icon={<Activity className="h-4 w-4" />}
+                                                    accent="bg-sky-500"
+                                                />
+                                                <MetricCard
+                                                    label="Installs"
+                                                    value={metrics.installs}
+                                                    hint="Unika enheter / browsrar"
+                                                    icon={<Download className="h-4 w-4" />}
+                                                    accent="bg-amber-500"
+                                                />
+                                            </div>
+
+                                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:px-5">
+                                                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
+                                                    <span>
+                                                        Aktiva senaste 7 dagarna:{' '}
+                                                        <span className="font-semibold text-zinc-200 tabular-nums">
+                                                            {metrics.active7d}
+                                                        </span>
+                                                    </span>
+                                                    <span className="tabular-nums">
+                                                        Uppdaterad{' '}
+                                                        {new Date(metrics.fetchedAt).toLocaleTimeString('sv-SE', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit',
+                                                            second: '2-digit',
+                                                        })}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                <PlatformBars title="Användare per plattform" data={metrics.byPlatform} />
+                                                <PlatformBars title="Installs per plattform" data={metrics.installsByPlatform} />
+                                            </div>
+
+                                            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+                                                <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
+                                                    Senast aktiva
+                                                </p>
+                                                <div className="space-y-2">
+                                                    {metrics.recentUsers.length === 0 ? (
+                                                        <p className="text-sm text-zinc-500">Inga användare ännu</p>
+                                                    ) : (
+                                                        metrics.recentUsers.map((u) => (
+                                                            <div
+                                                                key={u.uid}
+                                                                className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.04] bg-black/20 px-3 py-2.5"
+                                                            >
+                                                                <div className="min-w-0">
+                                                                    <p className="truncate text-sm font-medium text-zinc-100">
+                                                                        {u.displayName}
+                                                                    </p>
+                                                                    <p className="truncate text-[11px] text-zinc-500">{u.email}</p>
+                                                                </div>
+                                                                <div className="shrink-0 text-right">
+                                                                    <p className="text-[11px] font-medium text-zinc-300">
+                                                                        {formatRelative(u.lastActiveAt)}
+                                                                    </p>
+                                                                    <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-zinc-500">
+                                                                        <PlatformIcon platform={u.clientPlatform || 'web'} />
+                                                                        {platformLabel(u.clientPlatform)}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : null}
+                                </>
                             )}
 
-                            {loading && !metrics ? (
-                                <div className="flex flex-col items-center justify-center gap-3 py-20 text-zinc-400">
-                                    <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-                                    <p className="text-sm">Hämtar live-statistik…</p>
-                                </div>
-                            ) : metrics ? (
-                                <div className="space-y-5">
-                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                                        <MetricCard
-                                            label="Totalt"
-                                            value={metrics.totalUsers}
-                                            hint="Registrerade konton"
-                                            icon={<Users className="h-4 w-4" />}
-                                            accent="bg-emerald-500"
-                                        />
-                                        <MetricCard
-                                            label="Online"
-                                            value={metrics.onlineNow}
-                                            hint="Aktiva senaste 5 min"
-                                            icon={<Radio className="h-4 w-4" />}
-                                            accent="bg-teal-400"
-                                            pulse={metrics.onlineNow > 0}
-                                        />
-                                        <MetricCard
-                                            label="24 timmar"
-                                            value={metrics.active24h}
-                                            hint="Aktiva senaste dygnet"
-                                            icon={<Activity className="h-4 w-4" />}
-                                            accent="bg-sky-500"
-                                        />
-                                        <MetricCard
-                                            label="Installs"
-                                            value={metrics.installs}
-                                            hint="Unika enheter / browsrar"
-                                            icon={<Download className="h-4 w-4" />}
-                                            accent="bg-amber-500"
-                                        />
-                                    </div>
-
-                                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 sm:px-5">
-                                        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-400">
-                                            <span>
-                                                Aktiva senaste 7 dagarna:{' '}
-                                                <span className="font-semibold text-zinc-200 tabular-nums">
-                                                    {metrics.active7d}
-                                                </span>
-                                            </span>
-                                            <span className="tabular-nums">
-                                                Uppdaterad{' '}
-                                                {new Date(metrics.fetchedAt).toLocaleTimeString('sv-SE', {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    second: '2-digit',
-                                                })}
-                                            </span>
+                            {tab === 'inbox' && (
+                                <div className="space-y-3">
+                                    {inboxError && (
+                                        <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                                            {inboxError}
                                         </div>
-                                    </div>
-
-                                    <div className="grid gap-3 sm:grid-cols-2">
-                                        <PlatformBars title="Användare per plattform" data={metrics.byPlatform} />
-                                        <PlatformBars title="Installs per plattform" data={metrics.installsByPlatform} />
-                                    </div>
-
-                                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-                                        <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                                            Senast aktiva
-                                        </p>
-                                        <div className="space-y-2">
-                                            {metrics.recentUsers.length === 0 ? (
-                                                <p className="text-sm text-zinc-500">Inga användare ännu</p>
-                                            ) : (
-                                                metrics.recentUsers.map((u) => (
-                                                    <div
-                                                        key={u.uid}
-                                                        className="flex items-center justify-between gap-3 rounded-xl border border-white/[0.04] bg-black/20 px-3 py-2.5"
-                                                    >
-                                                        <div className="min-w-0">
-                                                            <p className="truncate text-sm font-medium text-zinc-100">
-                                                                {u.displayName}
+                                    )}
+                                    {inboxLoading && threads.length === 0 ? (
+                                        <div className="flex flex-col items-center justify-center gap-3 py-16 text-zinc-400">
+                                            <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+                                            <p className="text-sm">Hämtar meddelanden…</p>
+                                        </div>
+                                    ) : threads.length === 0 ? (
+                                        <div className="text-center py-16">
+                                            <MessageSquare className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+                                            <p className="text-sm text-zinc-500">Inga meddelanden ännu</p>
+                                        </div>
+                                    ) : (
+                                        threads.map((thread) => (
+                                            <button
+                                                key={thread.id}
+                                                type="button"
+                                                onClick={() => setActiveThread(thread)}
+                                                className="w-full text-left rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3.5 hover:bg-white/[0.06] transition"
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="truncate text-sm font-semibold text-zinc-100">
+                                                                {thread.userName || 'Användare'}
                                                             </p>
-                                                            <p className="truncate text-[11px] text-zinc-500">{u.email}</p>
+                                                            {(thread.unreadByAdmin || thread.awaitingAdminReply) && (
+                                                                <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+                                                            )}
                                                         </div>
-                                                        <div className="shrink-0 text-right">
-                                                            <p className="text-[11px] font-medium text-zinc-300">
-                                                                {formatRelative(u.lastActiveAt)}
-                                                            </p>
-                                                            <p className="mt-0.5 inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-zinc-500">
-                                                                <PlatformIcon platform={u.clientPlatform || 'web'} />
-                                                                {platformLabel(u.clientPlatform)}
-                                                            </p>
-                                                        </div>
+                                                        <p className="truncate text-[11px] text-zinc-500 mt-0.5">
+                                                            {thread.userEmail}
+                                                        </p>
+                                                        <p className="truncate text-xs text-zinc-400 mt-2">
+                                                            {thread.lastMessage}
+                                                        </p>
                                                     </div>
-                                                ))
-                                            )}
-                                        </div>
-                                    </div>
+                                                    <p className="shrink-0 text-[10px] text-zinc-500 tabular-nums">
+                                                        {formatRelative(
+                                                            thread.lastMessageAt?.toMillis?.() ?? null
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
                                 </div>
-                            ) : null}
+                            )}
                         </div>
                     </motion.div>
                 </motion.div>
             )}
         </AnimatePresence>
+
+        {activeThread && (
+            <ContactAdminModal
+                open={!!activeThread}
+                onClose={() => setActiveThread(null)}
+                threadUserId={activeThread.userId || activeThread.id}
+                currentUser={currentUser}
+                threadUser={{
+                    email: activeThread.userEmail,
+                    displayName: activeThread.userName,
+                    photoURL: activeThread.userPhoto,
+                }}
+                mode="admin"
+            />
+        )}
+        </>
     );
 }

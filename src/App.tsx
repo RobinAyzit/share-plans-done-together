@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy, Shield, Bell, BellOff } from 'lucide-react';
+import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy, Shield, Bell, BellOff, MessageSquare } from 'lucide-react';
 import { compressAndToBase64 } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import {
@@ -28,6 +28,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UpdateModal } from './components/UpdateModal';
 import { AdminDashboard } from './components/AdminDashboard';
+import { ContactAdminModal } from './components/ContactAdminModal';
 import { useAppUpdate } from './hooks/useAppUpdate';
 import { APP_VERSION } from './config/appVersion';
 import type { Plan, Item } from './types';
@@ -41,6 +42,7 @@ import { doc, updateDoc, deleteField } from 'firebase/firestore';
 import { db } from './lib/firebase';
 import { isAdminEmail } from './lib/admin';
 import { usePresence } from './hooks/usePresence';
+import { useMyAdminChatAlert } from './hooks/useAdminChat';
 
 const EMOJIS = ['❤️', '🔥', '💪', '🙏', '😂', '💯']; // Reactions supported by the app
 
@@ -141,7 +143,12 @@ function App() {
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [activeReactionPicker, setActiveReactionPicker] = useState<string | null>(null);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
+  const [showContactAdmin, setShowContactAdmin] = useState(false);
   const isAdmin = isAdminEmail(user?.email || userProfile?.email);
+  const { hasUnread: hasAdminReply, preview: adminReplyPreview } = useMyAdminChatAlert(
+    user?.uid,
+    !!user && !isAdmin
+  );
 
   // Invite handling state
   const [pendingInviteCode, setPendingInviteCode] = useState<string | null>(null);
@@ -449,6 +456,20 @@ function App() {
           </div>
 
           <div className="flex items-center gap-4">
+            {!isAdmin && hasAdminReply && (
+              <button
+                type="button"
+                onClick={() => setShowContactAdmin(true)}
+                className="relative p-2 rounded-xl bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+                title={t('contact.alert_title')}
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white dark:border-zinc-950">
+                  1
+                </span>
+              </button>
+            )}
+
             {incomingRequests && incomingRequests.length > 0 && (
               <button
                 onClick={() => setShowFriendsModal(true)}
@@ -488,8 +509,36 @@ function App() {
         </div>
       </header>
 
+      {/* Clickable in-app alert when admin has replied */}
+      {!isAdmin && hasAdminReply && isAuthenticated && (
+        <div className="fixed top-20 left-0 right-0 z-40 px-4 pointer-events-none">
+          <div className="max-w-3xl mx-auto pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => setShowContactAdmin(true)}
+              className="w-full flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl px-4 py-3 shadow-lg shadow-emerald-500/10 text-left hover:border-emerald-500/50 transition-all"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
+                <MessageSquare className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">
+                  {t('contact.alert_title')}
+                </p>
+                <p className="text-sm font-semibold text-zinc-900 dark:text-white truncate mt-0.5">
+                  {adminReplyPreview || t('contact.alert_body')}
+                </p>
+              </div>
+              <span className="shrink-0 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                {t('contact.alert_open')}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
-      <main className="pt-24 pb-32 max-w-3xl mx-auto px-6 h-screen overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide">
+      <main className={`pb-32 max-w-3xl mx-auto px-6 h-screen overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hide ${!isAdmin && hasAdminReply ? 'pt-36' : 'pt-24'}`}>
         <AnimatePresence mode="wait">
           {activeTab === 'home' && (
             <motion.div
@@ -1364,6 +1413,44 @@ function App() {
                     </div>
                   </div>
 
+                  {/* Contact admin — all users except admin account */}
+                  {!isAdmin && (
+                    <div className="w-full mb-4">
+                      <button
+                        type="button"
+                        onClick={() => setShowContactAdmin(true)}
+                        className="w-full group relative overflow-hidden p-5 rounded-[28px] text-left border border-zinc-200 dark:border-zinc-700/50 bg-zinc-50 dark:bg-zinc-800/50 hover:border-emerald-500/30 transition-all"
+                      >
+                        <div className="relative flex items-center gap-4">
+                          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-500">
+                            <MessageSquare className="w-5 h-5" />
+                            {hasAdminReply && (
+                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-black text-[10px] font-bold rounded-full flex items-center justify-center">
+                                1
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500 mb-1">
+                              {t('contact.badge')}
+                            </p>
+                            <p className="text-sm font-bold tracking-tight text-zinc-900 dark:text-white">
+                              {hasAdminReply ? t('contact.alert_title') : t('contact.title')}
+                            </p>
+                            <p className="text-[11px] text-zinc-500 mt-0.5 truncate">
+                              {hasAdminReply
+                                ? (adminReplyPreview || t('contact.alert_body'))
+                                : t('contact.card_hint')}
+                            </p>
+                          </div>
+                          <span className="text-emerald-500/80 text-xs font-semibold group-hover:translate-x-0.5 transition-transform">
+                            {hasAdminReply ? t('contact.alert_open') : t('contact.open')}
+                          </span>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Admin insights — only for bynrnworld@gmail.com */}
                   {isAdmin && (
                     <div className="w-full mb-4">
@@ -1672,11 +1759,27 @@ function App() {
           <FriendsModal key="friends-modal" onClose={() => setShowFriendsModal(false)} currentUser={userProfile} />
         )}
 
-        {isAdmin && (
+        {isAdmin && userProfile && (
           <AdminDashboard
             open={showAdminDashboard}
             onClose={() => setShowAdminDashboard(false)}
             email={user?.email || userProfile?.email}
+            currentUser={userProfile}
+          />
+        )}
+
+        {showContactAdmin && userProfile && user && (
+          <ContactAdminModal
+            open={showContactAdmin}
+            onClose={() => setShowContactAdmin(false)}
+            threadUserId={user.uid}
+            currentUser={userProfile}
+            threadUser={{
+              email: userProfile.email,
+              displayName: userProfile.displayName,
+              photoURL: userProfile.photoURL,
+            }}
+            mode="user"
           />
         )}
 

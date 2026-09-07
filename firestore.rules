@@ -9,6 +9,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'bynrnworld@gmail.com';
+    }
+
     function isPlanMember(planData) {
       return isSignedIn() && request.auth.uid in planData.members;
     }
@@ -107,6 +113,29 @@ service cloud.firestore {
         && (resource.data.expiresAt == null || resource.data.expiresAt > request.time)
         && (resource.data.maxUses == null || resource.data.useCount < resource.data.maxUses);
       allow delete: if false;
+    }
+
+    // Direct user ↔ admin feedback chat
+    match /adminThreads/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isOwner(userId) || isAdmin();
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if (isOwner(userId) || isAdmin())
+          && request.resource.data.from is string
+          && request.resource.data.fromUid == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000
+          && request.resource.data.createdAt is timestamp
+          && (
+            (isOwner(userId) && request.resource.data.from == 'user')
+            || (isAdmin() && request.resource.data.from == 'admin')
+          );
+        allow update, delete: if false;
+      }
     }
   }
 }

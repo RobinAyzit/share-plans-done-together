@@ -7,7 +7,7 @@ export interface AppNotification {
     from: string;
     title: string;
     body: string;
-    type: 'friend_request' | 'plan_update' | 'plan_complete';
+    type: 'friend_request' | 'plan_update' | 'plan_complete' | 'admin_chat';
     relatedId?: string;
     status: 'pending' | 'sent' | 'failed';
     createdAt: Timestamp;

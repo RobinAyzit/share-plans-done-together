@@ -195,5 +195,29 @@
             "description": "Bjud på en kaffe — håll appen gratis och i utveckling.",
             "button": "Bjud på en kaffe"
         }
+    },
+    "contact": {
+        "badge": "Feedback",
+        "title": "Kontakta admin",
+        "subtitle": "Skicka synpunkter direkt i appen",
+        "card_hint": "Ett meddelande i taget. Du kan svara när admin svarat.",
+        "open": "Öppna",
+        "empty": "Inga meddelanden ännu. Skriv gärna första!",
+        "placeholder": "Skriv ditt meddelande…",
+        "admin_placeholder": "Skriv ett svar…",
+        "admin_title": "Konversation",
+        "admin_subtitle": "Svara användaren här",
+        "role_admin": "Admin",
+        "role_you": "Du",
+        "role_user": "Användare",
+        "wait_reply": "Väntar på svar från admin…",
+        "wait_reply_hint": "Du har redan skickat ett meddelande. Vänta tills admin svarar innan du skriver igen.",
+        "daily_limit": "Du har redan skrivit idag",
+        "daily_limit_hint": "Du kan skicka ett nytt meddelande imorgon, eller svara när admin har svarat dig.",
+        "send_error": "Kunde inte skicka. Försök igen.",
+        "send_error_rules": "Firebase blockerar. Publicera firestore.rules i Firebase Console först.",
+        "alert_title": "Svar från admin",
+        "alert_body": "Du har fått ett nytt meddelande",
+        "alert_open": "Öppna"
     }
 }

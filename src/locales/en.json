@@ -195,5 +195,29 @@
             "description": "Buy me a coffee — keep the app free and improving.",
             "button": "Buy me a coffee"
         }
+    },
+    "contact": {
+        "badge": "Feedback",
+        "title": "Contact admin",
+        "subtitle": "Send feedback directly in the app",
+        "card_hint": "One message at a time. Reply again after admin answers.",
+        "open": "Open",
+        "empty": "No messages yet. Feel free to write the first one!",
+        "placeholder": "Write your message…",
+        "admin_placeholder": "Write a reply…",
+        "admin_title": "Conversation",
+        "admin_subtitle": "Reply to the user here",
+        "role_admin": "Admin",
+        "role_you": "You",
+        "role_user": "User",
+        "wait_reply": "Waiting for admin reply…",
+        "wait_reply_hint": "You already sent a message. Wait until admin replies before writing again.",
+        "daily_limit": "You already wrote today",
+        "daily_limit_hint": "You can send a new message tomorrow, or reply after admin answers you.",
+        "send_error": "Could not send. Please try again.",
+        "send_error_rules": "Firebase blocked this. Publish firestore.rules in Firebase Console first.",
+        "alert_title": "Reply from admin",
+        "alert_body": "You have a new message",
+        "alert_open": "Open"
     }
 }

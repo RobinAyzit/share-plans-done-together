@@ -192,5 +192,29 @@
             "description": "Bir kahve ısmarlayın — uygulama ücretsiz ve güncel kalsın.",
             "button": "Kahve ısmarla"
         }
+    },
+    "contact": {
+        "badge": "Geri bildirim",
+        "title": "Admine yaz",
+        "subtitle": "Uygulama üzerinden doğrudan geri bildirim gönder",
+        "card_hint": "Her seferinde bir mesaj. Admin cevaplayınca tekrar yazabilirsiniz.",
+        "open": "Aç",
+        "empty": "Henüz mesaj yok. İlkini yazabilirsiniz!",
+        "placeholder": "Mesajınızı yazın…",
+        "admin_placeholder": "Bir cevap yazın…",
+        "admin_title": "Sohbet",
+        "admin_subtitle": "Kullanıcıya buradan cevap verin",
+        "role_admin": "Admin",
+        "role_you": "Sen",
+        "role_user": "Kullanıcı",
+        "wait_reply": "Admin cevabı bekleniyor…",
+        "wait_reply_hint": "Zaten bir mesaj gönderdiniz. Tekrar yazmadan önce adminin cevaplamasını bekleyin.",
+        "daily_limit": "Bugün zaten yazdınız",
+        "daily_limit_hint": "Yarın yeni mesaj gönderebilirsiniz veya admin cevapladığında yanıt verebilirsiniz.",
+        "send_error": "Gönderilemedi. Lütfen tekrar deneyin.",
+        "send_error_rules": "Firebase engelledi. Önce Firebase Console'da firestore.rules yayınlayın.",
+        "alert_title": "Adminden cevap",
+        "alert_body": "Yeni bir mesajınız var",
+        "alert_open": "Aç"
     }
 }
