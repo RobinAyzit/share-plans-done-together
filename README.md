@@ -1,109 +1,152 @@
-# 🚀 DoneTogether - Smart Task Management
+# DoneTogether
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg) ![Version](https://img.shields.io/badge/version-1.0.0-green.svg) ![Status](https://img.shields.io/badge/status-Active-success.svg)
+**Shared plans. Real-time checklists. Optional GPS reminders.**
 
-**DoneTogether** is a modern, intelligent task manager designed to make planning and collaboration easy, fast, and fun. Whether it's the family grocery list, your team's project plan, or your personal to-do list, DoneTogether helps you get things done – together.
+[![License](https://img.shields.io/badge/license-Non--Commercial-orange.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.2.2-green.svg)](https://github.com/nRn-World/DoneTogether/releases)
+[![Status](https://img.shields.io/badge/status-Live-success.svg)](https://nrnworld.one/DoneTogether/)
 
----
+DoneTogether is a free collaborative planning app for families and friends.
+Create a shared plan, invite others with a link, and check items off together
+in real time. You can also attach location reminders (enter or leave a place)
+so people get notified when they need them most.
 
-## 💡 What is DoneTogether?
-
-DoneTogether is more than a to-do list. It's a **Smart Task** tool that syncs your plans in real time across all devices. With a focus on usability and visual feedback, the app makes it easy to organize everyday life.
-
-### ✨ Key Features
-
-*   **🔄 Real-time sync:** All changes update instantly for everyone invited. No delay, no hassle.
-*   **👥 Smart collaboration:** Invite friends and family by email or unique links. Work together on shared lists.
-*   **📸 Visual planning:** Add images to tasks to clarify what needs to be done or to celebrate progress.
-*   **📱 Cross-platform:** Works seamlessly on Android, iOS (via web), and desktop.
-*   **🎨 Modern design:** A clean dark theme that's easy on the eyes and battery.
-*   **🔒 Security:** All data is stored securely with Google Firebase and communication is encrypted.
-*   **🧹 Auto-cleanup:** Completed lists are archived automatically to keep your view clean and focused.
+**Live app:** [https://nrnworld.one/DoneTogether/](https://nrnworld.one/DoneTogether/)  
+**Info & Android download:** [https://nrnworld.one/p/donetogether](https://nrnworld.one/p/donetogether)  
+**Repository:** [https://github.com/nRn-World/DoneTogether](https://github.com/nRn-World/DoneTogether)
 
 ---
 
-## 📸 Screenshots
+## Why it exists
 
-| Login | Create task | Task details |
+The project started as a simple to-do idea and quickly grew into something more:
+shared family plans plus GPS reminders for everyday life (medicine, school runs,
+shopping lists, and similar).
+
+It was prototyped with Google AI Studio, then developed further locally with
+Cursor, OpenCode, and Codex agents over many months until it was ready for
+public use.
+
+---
+
+## Features
+
+- **Shared plans** – invite family or friends with a link or code
+- **Real-time sync** – when someone checks an item, everyone sees it
+- **GPS reminders** – notify on enter or leave around a chosen address
+- **Photos & reactions** – celebrate finished items together
+- **Friends** – find people by email and share plans more easily
+- **Plan notifications** – owners can turn member alerts on or off (off by default)
+- **Languages** – Swedish, English, Turkish
+- **Web + Android** – use in the browser or install the Android app
+- **Google sign-in** – simple login with your Google account
+
+---
+
+## Screenshots
+
+| Login | Create plan | Plan details |
 |:-----:|:-----------:|:------------:|
-| <img src="screenshot/login.png" alt="Login screen" width="240"/> | <img src="screenshot/create.png" alt="Create task" width="240"/> | <img src="screenshot/creat2.png" alt="Task details" width="240"/> |
+| <img src="screenshot/login.png" alt="Login" width="240"/> | <img src="screenshot/create.png" alt="Create plan" width="240"/> | <img src="screenshot/creat2.png" alt="Plan details" width="240"/> |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
-The project is built with modern, robust technology for performance and scalability:
-
-*   **Frontend:** React 19, TypeScript, Vite
-*   **Styling:** Tailwind CSS, Framer Motion
-*   **Backend & database:** Google Firebase (Firestore, Auth, Storage)
-*   **Mobile:** Capacitor (Android/iOS native wrapper)
+| Area | Stack |
+|------|--------|
+| Frontend | React 19, TypeScript, Vite |
+| UI | Tailwind CSS, Framer Motion |
+| Backend | Firebase Auth, Firestore, Messaging |
+| Mobile | Capacitor (Android) |
 
 ---
 
-## 🚀 Installation & Getting Started
-
-Follow these steps to run the project locally.
+## Getting started (local)
 
 ### Prerequisites
-*   Node.js (v18+)
-*   npm or yarn
-*   Android Studio (for mobile development)
 
-### Step by step
+- Node.js 18+
+- npm
+- A Firebase project (Auth + Firestore)
+- Optional: Android Studio for native builds
 
-1.  **Clone the repo**
-    ```bash
-    git clone https://github.com/RobinAyzit/DoneTogether.git
-    cd DoneTogether
-    ```
+### Setup
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+```bash
+git clone https://github.com/nRn-World/DoneTogether.git
+cd DoneTogether
+npm install
+```
 
-3.  **Configure Environment**
-    *   Copy `.env.example` to `.env`: `cp .env.example .env`
-    *   Add your Google Maps API key to `.env` file
-    *   Get API key from [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+Copy environment variables:
 
-4.  **Configure Firebase**
-    *   Create a project in [Firebase Console](https://console.firebase.google.com).
-    *   Copy your config into `src/lib/firebase.ts`.
-    *   Enable Google Auth and Firestore Database.
+```bash
+cp .env.example .env
+```
 
-5.  **Start the dev server**
-    ```bash
-    npm run dev
-    ```
+Fill in Firebase, Google OAuth, Maps, and VAPID keys in `.env`.
 
-6.  **Build for Android (optional)**
-    ```bash
-    npm run build
-    npx cap sync
-    npx cap open android
-    ```
+Start the development server:
+
+```bash
+npm run dev
+```
+
+### Android (optional)
+
+```bash
+npm run build
+npx cap sync android
+npx cap open android
+```
 
 ---
 
-📄 **License**  
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+## Privacy
 
-👨‍💻 **Author**  
-Created 2026 by © nRn World  
+DoneTogether is built to stay simple. There is no advertising stack and no
+unnecessary personal data collection beyond what is needed to run accounts,
+plans, and optional push/location features you choose to enable.
 
-📧 bynrnworld@gmail.com
-
-🙏 **Support**  
-If you like this project, consider:
-
-⭐ Starring the project on GitHub  
-☕ **Support development**: [Buy me a coffee 💜](https://ko-fi.com/nrnworld)  
-📢 Sharing with your friends
+The operator admin view only shows high-level usage counts (for example how
+many people use the app or have installed it). It is not a tool for reading
+other users’ private plan contents.
 
 ---
 
-*Last updated: March 2026*
+## License (important)
 
-Created by ❤️ © nRn World
+This project is licensed under the **DoneTogether Non-Commercial License**.
+See [LICENSE](LICENSE) for the full text.
+
+**You may:**
+
+- download and run the project
+- study and modify it for learning / education
+- share non-commercial copies with attribution
+
+**You may not:**
+
+- sell DoneTogether or charge money for it
+- monetize a copy or derivative that is based on DoneTogether
+- use it as the basis of a paid product or paid service
+
+In short: learn from it freely. Do not make money from a copied DoneTogether.
+
+---
+
+## Author & support
+
+Created by **nRn World** (2026)  
+Email: [bynrnworld@gmail.com](mailto:bynrnworld@gmail.com)
+
+If the app is useful to you:
+
+- Star the repository on GitHub
+- Share it with people who might need it
+- Optional support: [Ko-fi](https://ko-fi.com/nrnworld)
+
+---
+
+Made with care by nRn World.

@@ -1,16 +1,35 @@
-MIT License
-
-Copyright (c) 2026 RobinAyzit
+DoneTogether Non-Commercial License
+Copyright (c) 2026 nRn World
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, merge, publish, and distribute the Software for NON-COMMERCIAL
+purposes only, including personal use, private study, research, teaching,
+and other educational purposes, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. Non-commercial use only
+   You may NOT sell the Software, charge for access to the Software, or
+   otherwise use the Software (or any modified / derived version of it) for
+   commercial advantage or monetary compensation. This includes, without
+   limitation:
+   - selling copies, forks, or redistributions of DoneTogether
+   - offering a paid product, service, SaaS, or app that is substantially
+     based on DoneTogether
+   - bundling DoneTogether into a commercial offering
+
+2. Attribution
+   The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
+
+3. Educational and learning use
+   You MAY download, study, modify, and run the Software locally for
+   learning, education, and improving your own non-commercial projects,
+   provided you do not monetize DoneTogether or a copy of it.
+
+4. No trademark rights
+   This license does not grant permission to use the name "DoneTogether",
+   "nRn World", or related branding in a way that suggests endorsement
+   of a commercial product.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +38,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+For questions: bynrnworld@gmail.com
