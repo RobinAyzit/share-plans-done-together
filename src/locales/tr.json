@@ -149,7 +149,13 @@
         "all_plans_nav": "TÜM PLANLAR",
         "completed_nav": "TAMAMLANAN",
         "profile_nav": "PROFIL",
-        "friends_requests": "Arkadaşlık İstekleri"
+        "friends_requests": "Arkadaşlık İstekleri",
+        "notifications_label": "Plan bildirimleri",
+        "notifications_on": "Bildirimler açık",
+        "notifications_off": "Bildirimler kapalı",
+        "notifications_hint": "Açıkken: yeni maddeler ve tamamlamalar diğer üyelere gider.",
+        "notifications_enabled_toast": "Plan bildirimleri açık",
+        "notifications_disabled_toast": "Plan bildirimleri kapalı"
     },
     "profile": {
         "title": "Profil",

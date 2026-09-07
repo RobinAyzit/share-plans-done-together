@@ -47,6 +47,11 @@ export interface Plan {
     completedAt?: Timestamp;
     lastModified: Timestamp;
     imageUrl?: string;
+    /**
+     * When true, members get notified on new items / completions.
+     * Default / missing = off. Only the plan owner can change this.
+     */
+    notificationsEnabled?: boolean;
 }
 
 export interface UserProfile {

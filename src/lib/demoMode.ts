@@ -135,6 +135,7 @@ export function createDemoPlan(
         created: Timestamp.now(),
         completed: false,
         lastModified: Timestamp.now(),
+        notificationsEnabled: false,
         imageUrl,
     };
     const plans = getDemoPlans();

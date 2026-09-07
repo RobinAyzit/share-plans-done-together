@@ -180,6 +180,7 @@ export async function createPlan(
         created: Timestamp.now(),
         completed: false,
         lastModified: Timestamp.now(),
+        notificationsEnabled: false,
     };
     if (imageUrl) newPlan.imageUrl = imageUrl;
 
@@ -237,15 +238,17 @@ export async function addItemToPlan(planId: string, text: string, userId: string
         completedAt: null, // Clear completion timestamp
     });
 
-    // Notify others that a new item was added
+    // Notify others only when the plan owner has enabled plan notifications
     const planSnap = await getDoc(planRef);
     if (planSnap.exists()) {
         const plan = planSnap.data() as Plan;
-        Object.keys(plan.members).forEach(uid => {
-            if (uid !== userId) {
-                sendAppNotification(uid, 'Ny punkt! 💡', `${userName} la till "${text}" i ${plan.name}`, 'plan_update', planId);
-            }
-        });
+        if (plan.notificationsEnabled === true) {
+            Object.keys(plan.members).forEach(uid => {
+                if (uid !== userId) {
+                    sendAppNotification(uid, 'Ny punkt! 💡', `${userName} la till "${text}" i ${plan.name}`, 'plan_update', planId);
+                }
+            });
+        }
     }
 }
 
@@ -281,7 +284,7 @@ export async function updateItem(planId: string, itemId: string, updates: Partia
         lastModified: Timestamp.now(),
     });
 
-    if (allChecked) {
+    if (allChecked && plan.notificationsEnabled === true) {
         Object.keys(plan.members).forEach(uid => {
             sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
         });
@@ -314,7 +317,7 @@ export async function deleteItem(planId: string, itemId: string): Promise<void> 
         lastModified: Timestamp.now(),
     });
 
-    if (allChecked) {
+    if (allChecked && plan.notificationsEnabled === true) {
         Object.keys(plan.members).forEach(uid => {
             sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
         });
@@ -381,15 +384,17 @@ export async function toggleItemChecked(
         lastModified: Timestamp.now(),
     });
 
-    Object.keys(plan.members).forEach(uid => {
-        if (uid !== userId) { // Don't notify the person who did it
-            if (allChecked && isNowChecked) {
-                sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
-            } else if (isNowChecked) {
-                sendAppNotification(uid, 'Punkt avklarad! ✅', `${displayName} fixade "${item.text}" i ${plan.name}`, 'plan_update', planId);
+    if (plan.notificationsEnabled === true) {
+        Object.keys(plan.members).forEach(uid => {
+            if (uid !== userId) { // Don't notify the person who did it
+                if (allChecked && isNowChecked) {
+                    sendAppNotification(uid, 'Plan slutförd! 🎉', `Planen "${plan.name}" är nu helt klar!`, 'plan_complete', planId);
+                } else if (isNowChecked) {
+                    sendAppNotification(uid, 'Punkt avklarad! ✅', `${displayName} fixade "${item.text}" i ${plan.name}`, 'plan_update', planId);
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 export async function addMemberToPlan(

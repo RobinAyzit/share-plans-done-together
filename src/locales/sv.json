@@ -152,7 +152,13 @@
         "all_plans_nav": "ALLA PLANER",
         "completed_nav": "KLARA",
         "profile_nav": "PROFIL",
-        "friends_requests": "Vänförfrågningar"
+        "friends_requests": "Vänförfrågningar",
+        "notifications_label": "Planaviseringar",
+        "notifications_on": "Aviseringar på",
+        "notifications_off": "Aviseringar av",
+        "notifications_hint": "När på: nya punkter och avklarat skickas till övriga i planen.",
+        "notifications_enabled_toast": "Planaviseringar på",
+        "notifications_disabled_toast": "Planaviseringar av"
     },
     "profile": {
         "title": "Profil",

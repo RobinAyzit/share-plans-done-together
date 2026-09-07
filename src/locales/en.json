@@ -152,7 +152,13 @@
         "all_plans_nav": "ALL PLANS",
         "completed_nav": "DONE",
         "profile_nav": "PROFILE",
-        "friends_requests": "Friends Requests"
+        "friends_requests": "Friends Requests",
+        "notifications_label": "Plan notifications",
+        "notifications_on": "Notifications on",
+        "notifications_off": "Notifications off",
+        "notifications_hint": "When on: new items and completions notify other members.",
+        "notifications_enabled_toast": "Plan notifications on",
+        "notifications_disabled_toast": "Plan notifications off"
     },
     "profile": {
         "title": "Profile",

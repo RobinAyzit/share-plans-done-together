@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy, Shield } from 'lucide-react';
+import { Plus, Share2, Trash2, Pencil, Check, Users, User, ArrowLeft, Home, Camera, History, X, Smile, Sun, Moon, MapPin, Copy, Shield, Bell, BellOff } from 'lucide-react';
 import { compressAndToBase64 } from './lib/utils';
 import { useAuth } from './hooks/useAuth';
 import {
@@ -712,6 +712,50 @@ function App() {
                         />
                       </div>
                     </div>
+
+                    {/* Plan notifications — owner only; default off */}
+                    {currentPlan.ownerId === user?.uid && (
+                      <div className="flex items-center justify-between gap-4 p-4 sm:p-5 rounded-[24px] bg-white dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800/50 shadow-sm">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${currentPlan.notificationsEnabled ? 'bg-emerald-500/15 border-emerald-500/25 text-emerald-500' : 'bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-400'}`}>
+                            {currentPlan.notificationsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                          </div>
+                          <div className="min-w-0 text-left">
+                            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500 mb-1">
+                              {t('plans.notifications_label')}
+                            </p>
+                            <p className="text-sm font-bold text-zinc-900 dark:text-white leading-snug">
+                              {currentPlan.notificationsEnabled
+                                ? t('plans.notifications_on')
+                                : t('plans.notifications_off')}
+                            </p>
+                            <p className="text-[11px] text-zinc-500 mt-0.5 leading-snug">
+                              {t('plans.notifications_hint')}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          aria-pressed={!!currentPlan.notificationsEnabled}
+                          onClick={async () => {
+                            const next = !currentPlan.notificationsEnabled;
+                            try {
+                              await updatePlan(currentPlan.id, { notificationsEnabled: next });
+                              showToast(next ? t('plans.notifications_enabled_toast') : t('plans.notifications_disabled_toast'));
+                            } catch {
+                              showToast(t('plans.update_error'));
+                            }
+                          }}
+                          className={`relative h-7 w-12 shrink-0 rounded-full border-2 transition-all ${currentPlan.notificationsEnabled ? 'bg-emerald-500 border-emerald-600' : 'bg-zinc-300 dark:bg-zinc-700 border-zinc-400 dark:border-zinc-600'}`}
+                        >
+                          <motion.div
+                            animate={{ x: currentPlan.notificationsEnabled ? 20 : 0 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                            className="w-5 h-5 rounded-full bg-white shadow-sm m-0.5"
+                          />
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {!currentPlan.completed && (
